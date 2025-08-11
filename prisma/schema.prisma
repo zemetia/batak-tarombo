@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Person {
+  id          String    @id @default(uuid())
+  name        String
+  generation  Int
+  wife        String?
+  description String?
+  birthOrder  Int       @default(0)
+  father      Person?   @relation("Children", fields: [fatherId], references: [id], onDelete: SetNull)
+  fatherId    String?
+  contributor Contributor? @relation(fields: [contributorId], references: [id], onDelete: SetNull)
+  contributorId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  children    Person[]  @relation("Children")
+  @@index([contributorId])
+}
+
+model ProposedPerson { //temporary
+  id          String    @id @default(uuid())
+  name        String
+  generation  Int
+  wife        String?
+  description String?
+  birthOrder  Int       @default(0)
+  father      ProposedPerson?   @relation("Children", fields: [fatherId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  fatherId    String?
+  dataSubmissionId  String?
+  dataSubmission    DataSubmission? @relation(fields: [dataSubmissionId], references: [id], onDelete: Restrict)
+
+  @@index([dataSubmissionId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  children    ProposedPerson[]  @relation("Children")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contributor {
+  id            String           @id @default(uuid())
+  email         String           @unique
+  fullName      String
+  password      String
+  birthday      DateTime?
+  whatsapp      String?
+  address       String?
+  city          String?
+  country       String?
+  facebook      String?
+  instagram     String?
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  submissions   DataSubmission[]
+  persons       Person[]
+}
+
+model DataSubmission {
+  id                String      @id @default(uuid())
+  changesDetail     String
+  status            String      @default("Pending") // Pending, Approved, Rejected
+  taromboProve      String // Image link
+
+  submittedAt  DateTime    @default(now())
+  
+  submittedBy  Contributor @relation(fields: [contributorId], references: [id])
+  contributorId String
+
+  proposedPersons ProposedPerson[]
+}
