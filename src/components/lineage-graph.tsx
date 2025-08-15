@@ -14,6 +14,8 @@ import {
   Edge,
   MiniMap,
   Controls,
+  useReactFlow,
+  Panel,
 } from 'reactflow';
 import dagre from 'dagre';
 
@@ -56,6 +58,58 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
 };
 
 const fitViewOptions = { padding: 0.2 };
+
+// This is a new component that will handle the centering logic.
+const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
+  const { getNodes, setNodes, fitView } = useReactFlow();
+  const nodes = getNodes();
+
+  useEffect(() => {
+    if (nodes.length === 0 || mainLineageIds.length === 0) return;
+
+    // Find the nodes that are part of the main lineage
+    const mainLineageNodes = mainLineageIds
+      .map(id => nodes.find(node => node.id === id))
+      .filter(Boolean) as Node[];
+
+    if (mainLineageNodes.length === 0) return;
+
+    // Calculate the average X position of the main lineage
+    const totalX = mainLineageNodes.reduce((sum, node) => sum + node.position.x + (node.width ? node.width / 2 : 0), 0);
+    const averageX = totalX / mainLineageNodes.length;
+
+    // Get the viewport center X
+    const viewport = document.querySelector('.react-flow__viewport');
+    const viewportCenterX = viewport ? viewport.clientWidth / 2 : 0;
+    
+    // Calculate the offset needed to center the lineage
+    const offsetX = viewportCenterX - averageX;
+
+    // Apply the offset to all nodes
+    const shiftedNodes = getNodes().map(node => ({
+        ...node,
+        position: {
+            ...node.position,
+            x: node.position.x + offsetX
+        }
+    }));
+
+    setNodes(shiftedNodes);
+
+    // Fit the view to only the main lineage nodes
+    setTimeout(() => {
+        fitView({
+            nodes: mainLineageNodes.map(n => ({ id: n.id })),
+            padding: 0.2,
+            duration: 300,
+        });
+    }, 10);
+
+  }, [nodes.length, mainLineageIds.join(',')]); // Rerun when nodes or the lineage changes
+
+  return null;
+};
+
 
 interface LineageGraphProps {
     searchQuery: string;
@@ -170,6 +224,16 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
     return buildFilteredTree(pathToMatch);
   }, []);
 
+  const mainLineageIds = useMemo(() => {
+    const ids: string[] = [];
+    let currentNode: Ancestor | undefined = initialData;
+    while(currentNode) {
+        ids.push(currentNode.id);
+        currentNode = currentNode.children?.[0];
+    }
+    return ids;
+  }, [initialData]);
+
   useEffect(() => {
     if (!initialData) return;
 
@@ -274,7 +338,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
     }
-  }, [handleNodeClick, selectedAncestor, searchQuery, filterLineage, setNodes, setEdges, generationStartNode, initialData, collapsedNodes]);
+  }, [handleNodeClick, selectedAncestor, searchQuery, filterLineage, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, handleToggleCollapse]);
   
   const handleSheetOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -317,6 +381,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
             </Alert>
           </div>
         )}
+        <ViewportCenter mainLineageIds={mainLineageIds} />
       </ReactFlow>
       <AncestorProfile
         ancestor={selectedAncestor}
