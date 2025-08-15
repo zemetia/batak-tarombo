@@ -15,7 +15,6 @@ import {
   MiniMap,
   Controls,
   useReactFlow,
-  Panel,
 } from 'reactflow';
 import dagre from 'dagre';
 
@@ -59,57 +58,6 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
 
 const fitViewOptions = { padding: 0.2 };
 
-// This is a new component that will handle the centering logic.
-const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
-  const { getNodes, setNodes, fitView } = useReactFlow();
-  const nodes = getNodes();
-
-  useEffect(() => {
-    if (nodes.length === 0 || mainLineageIds.length === 0) return;
-
-    // Find the nodes that are part of the main lineage
-    const mainLineageNodes = mainLineageIds
-      .map(id => nodes.find(node => node.id === id))
-      .filter(Boolean) as Node[];
-
-    if (mainLineageNodes.length === 0) return;
-
-    // Calculate the average X position of the main lineage
-    const totalX = mainLineageNodes.reduce((sum, node) => sum + node.position.x + (node.width ? node.width / 2 : 0), 0);
-    const averageX = totalX / mainLineageNodes.length;
-
-    // Get the viewport center X
-    const viewport = document.querySelector('.react-flow__viewport');
-    const viewportCenterX = viewport ? viewport.clientWidth / 2 : 0;
-    
-    // Calculate the offset needed to center the lineage
-    const offsetX = viewportCenterX - averageX;
-
-    // Apply the offset to all nodes
-    const shiftedNodes = getNodes().map(node => ({
-        ...node,
-        position: {
-            ...node.position,
-            x: node.position.x + offsetX
-        }
-    }));
-
-    setNodes(shiftedNodes);
-
-    // Fit the view to only the main lineage nodes
-    setTimeout(() => {
-        fitView({
-            nodes: mainLineageNodes.map(n => ({ id: n.id })),
-            padding: 0.2,
-            duration: 300,
-        });
-    }, 10);
-
-  }, [nodes.length, mainLineageIds.join(',')]); // Rerun when nodes or the lineage changes
-
-  return null;
-};
-
 
 interface LineageGraphProps {
     searchQuery: string;
@@ -122,6 +70,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
   const [selectedAncestor, setSelectedAncestor] = useState<Ancestor | null>(null);
   const [generationStartNode, setGenerationStartNode] = useState<string | null>(null);
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
+  const { fitView } = useReactFlow();
 
   const onConnect = useCallback(
     (params: any) =>
@@ -226,13 +175,29 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
 
   const mainLineageIds = useMemo(() => {
     const ids: string[] = [];
-    let currentNode: Ancestor | undefined = initialData;
+    if (!initialData) return ids;
+    let currentNode: Ancestor | undefined | null = initialData;
+    
+    if (generationStartNode) {
+        const findStart = (anc: Ancestor): Ancestor | null => {
+            if (anc.id === generationStartNode) return anc;
+            if (anc.children) {
+                for (const child of anc.children) {
+                    const found = findStart(child);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+        currentNode = findStart(initialData);
+    }
+    
     while(currentNode) {
         ids.push(currentNode.id);
         currentNode = currentNode.children?.[0];
     }
     return ids;
-  }, [initialData]);
+  }, [initialData, generationStartNode]);
 
   useEffect(() => {
     if (!initialData) return;
@@ -333,12 +298,48 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
     if (allNodes.length === 0 && searchQuery) {
         setNodes([]);
         setEdges([]);
-    } else {
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(allNodes, allEdges);
-        setNodes(layoutedNodes);
-        setEdges(layoutedEdges);
+        return;
     }
-  }, [handleNodeClick, selectedAncestor, searchQuery, filterLineage, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, handleToggleCollapse]);
+
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(allNodes, allEdges);
+    
+    if (mainLineageIds.length > 0) {
+        const mainLineageNodes = mainLineageIds
+          .map(id => layoutedNodes.find(node => node.id === id))
+          .filter(Boolean) as Node[];
+
+        if (mainLineageNodes.length > 0) {
+            const totalX = mainLineageNodes.reduce((sum, node) => sum + node.position.x + (node.width ? node.width / 2 : 0), 0);
+            const averageX = totalX / mainLineageNodes.length;
+
+            const viewport = document.querySelector('.react-flow__viewport');
+            const viewportCenterX = viewport ? viewport.clientWidth / 2 : 0;
+            
+            const offsetX = viewportCenterX - averageX;
+
+            const shiftedNodes = layoutedNodes.map(node => ({
+                ...node,
+                position: { ...node.position, x: node.position.x + offsetX }
+            }));
+            
+            setNodes(shiftedNodes);
+            setEdges(layoutedEdges);
+
+            setTimeout(() => {
+                fitView({
+                    nodes: mainLineageNodes.map(n => ({ id: n.id })),
+                    padding: 0.2,
+                    duration: 300,
+                });
+            }, 10);
+            return;
+        }
+    }
+
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
+
+  }, [handleNodeClick, selectedAncestor, searchQuery, filterLineage, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, handleToggleCollapse, mainLineageIds, fitView]);
   
   const handleSheetOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -381,7 +382,6 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
             </Alert>
           </div>
         )}
-        <ViewportCenter mainLineageIds={mainLineageIds} />
       </ReactFlow>
       <AncestorProfile
         ancestor={selectedAncestor}
