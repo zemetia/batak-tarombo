@@ -86,36 +86,6 @@ interface GraphStats {
     minGeneration: number;
 }
 
-const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
-    const { getNodes, setNodes, fitView, getViewport } = useReactFlow();
-
-    useEffect(() => {
-        const nodes = getNodes();
-        if (nodes.length === 0 || mainLineageIds.length === 0) return;
-
-        const mainLineageNodes = nodes.filter(n => mainLineageIds.includes(n.id));
-        if (mainLineageNodes.length === 0) return;
-
-        const { x: viewX, y: viewY, zoom } = getViewport();
-        const viewportWidth = window.innerWidth / zoom;
-        const viewportCenterX = -viewX / zoom + viewportWidth / 2;
-        
-        const avgX = mainLineageNodes.reduce((sum, node) => sum + node.position.x + (node.width! / 2), 0) / mainLineageNodes.length;
-        const xOffset = viewportCenterX - avgX;
-
-        setNodes(nodes.map(n => ({
-            ...n,
-            position: { ...n.position, x: n.position.x + xOffset }
-        })));
-
-        fitView({ nodes: mainLineageNodes, padding: 0.2 });
-
-    }, [getNodes, setNodes, fitView, mainLineageIds, getViewport]);
-
-    return null;
-}
-
-
 export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -364,9 +334,13 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           minGeneration: Math.min(...generations, 0)
         });
         
-        setTimeout(() => fitView({ padding: 0.2 }), 100);
+        // This useEffect now correctly captures `fitView` and uses it.
+        const mainLineageNodes = layoutedNodes.filter(n => mainLineageIds.includes(n.id));
+        
+        // Use a timeout to ensure the DOM is updated before fitting the view
+        setTimeout(() => fitView({ nodes: mainLineageNodes.length > 0 ? mainLineageNodes : undefined, padding: 0.2 }), 100);
     }
-  }, [handleNodeClick, selectedAncestor, searchQuery, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, layoutType, showGenNumbers, highlightedPath, handleHighlightPath, fitView]);
+  }, [handleNodeClick, selectedAncestor, searchQuery, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, layoutType, showGenNumbers, highlightedPath, handleHighlightPath, fitView, mainLineageIds]);
   
   const filterLineage = (root: Ancestor, query: string): Ancestor | null => {
     const lowerCaseQuery = query.toLowerCase();
@@ -450,7 +424,6 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           className="bg-background"
           proOptions={{ hideAttribution: true }}
         >
-          <ViewportCenter mainLineageIds={mainLineageIds} />
           {showBackground && <Background />}
           <Controls showInteractive={false} />
           
@@ -559,7 +532,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           </Panel>
           
           {/* Toggle Controls */}
-          <Panel position="bottom-right" className="m-2 flex flex-col gap-2">
+          <Panel position="bottom-right" className="m-2 hidden md:flex flex-col gap-2">
             <div className="flex flex-col gap-2 p-2 rounded-lg bg-background/95 backdrop-blur-sm border shadow-lg">
                 <Tooltip>
                 <TooltipTrigger asChild>
