@@ -1,3 +1,4 @@
+
 'use client';
 
 import { LineageGraph } from '@/components/lineage-graph';
@@ -13,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import { getLineageData, getAllAncestors } from '@/lib/actions';
 import { cn } from '@/lib/utils';
+import { ReactFlowProvider } from 'reactflow';
 
 
 export default function Home() {
@@ -136,25 +138,25 @@ export default function Home() {
 
 
   return (
-    <div className="w-full flex flex-col" style={{height: 'calc(100vh - 4rem)'}}>
-       <div className="bg-gradient-to-b from-background via-background/95 to-background/80 backdrop-blur-sm z-10 pt-6 pb-4 border-b">
+    <div className="w-full h-[calc(100vh-4rem)] relative">
+       <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-background via-background/90 to-transparent">
         <div className="container mx-auto px-4 md:px-6 max-w-6xl">
           {/* Header with Logo */}
-          <div className='w-full items-center flex justify-center mb-6'>
+          <div className='w-full items-center flex justify-center mb-4'>
             <Image
               src='/images/tarombo.png'
               alt='tarombo'
-              width={500}
-              height={100}
+              width={400}
+              height={80}
               className="drop-shadow-sm"
             />
           </div>
           
           {/* Statistics Bar */}
           {stats && (
-            <div className="flex justify-center mb-6">
-              <Card className="p-4 bg-primary/5 border-primary/20">
-                <div className="flex items-center gap-6 text-sm">
+            <div className="flex justify-center mb-4">
+              <Card className="p-3 bg-primary/5 border-primary/20 shadow-md">
+                <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-primary" />
                     <span className="font-medium">{stats.totalPeople}</span>
@@ -183,21 +185,15 @@ export default function Home() {
             </div>
           )}
           
-          <div className="text-center mb-6">
-            <p className="text-lg text-muted-foreground">
-              Explore the rich family history of the Batak people. Search for your ancestors and discover your roots.
-            </p>
-          </div>
-          
           {/* Enhanced Search */}
           <div ref={searchContainerRef} className="relative max-w-2xl mx-auto">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search for an ancestor..."
                 className={cn(
-                  "w-full pl-12 pr-20 py-6 text-lg rounded-full shadow-lg transition-all duration-200",
+                  "w-full pl-12 pr-20 py-5 text-md rounded-full shadow-lg transition-all duration-200",
                   "focus:ring-2 focus:ring-primary/20 focus:border-primary",
                   searchQuery && "pr-32"
                 )}
@@ -208,7 +204,7 @@ export default function Home() {
               />
               
               {/* Search Controls */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                 {generationFilter && (
                   <Badge variant="outline" className="text-xs">
                     Gen {generationFilter}
@@ -224,10 +220,10 @@ export default function Home() {
                 )}
                 <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
                   className={cn(
-                    "h-8 w-8 p-0 rounded-full",
+                    "h-8 w-8 rounded-full",
                     showAdvancedSearch && "bg-primary/10 text-primary"
                   )}
                 >
@@ -236,9 +232,9 @@ export default function Home() {
                 {searchQuery && (
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={handleClearSearch}
-                    className="h-8 w-8 p-0 rounded-full"
+                    className="h-8 w-8 rounded-full"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -339,7 +335,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex-1 w-full h-full">
+      <div className="w-full h-full">
         {isLoading ? (
           <div className="flex items-center justify-center w-full h-full">
             <div className="flex flex-col items-center gap-4">
@@ -348,7 +344,9 @@ export default function Home() {
             </div>
           </div>
         ) : lineageData ? (
-          <LineageGraph searchQuery={searchQuery} initialData={lineageData} />
+           <ReactFlowProvider>
+            <LineageGraph searchQuery={searchQuery} initialData={lineageData} />
+          </ReactFlowProvider>
         ) : (
           <div className="flex items-center justify-center w-full h-full">
             <div className="text-center">
@@ -361,3 +359,4 @@ export default function Home() {
     </div>
   );
 }
+

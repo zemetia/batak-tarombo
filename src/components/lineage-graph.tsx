@@ -1,6 +1,6 @@
 
 'use client';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import {
   ReactFlow,
   addEdge,
@@ -29,7 +29,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { TriangleAlert, ZoomIn, ZoomOut, Maximize2, RotateCcw, Eye, EyeOff, Users, Filter, Layers, TreePine } from 'lucide-react';
+import { TriangleAlert, ZoomIn, ZoomOut, Maximize, RotateCcw, Eye, EyeOff, Users, Filter, Layers, TreePine, Minimize } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
@@ -86,6 +86,36 @@ interface GraphStats {
     minGeneration: number;
 }
 
+const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
+    const { getNodes, setNodes, fitView } = useReactFlow();
+
+    useEffect(() => {
+        const nodes = getNodes();
+        if (nodes.length === 0 || mainLineageIds.length === 0) return;
+
+        const mainLineageNodes = nodes.filter(n => mainLineageIds.includes(n.id));
+        if (mainLineageNodes.length === 0) return;
+
+        const { x: viewX, y: viewY, zoom } = useReactFlow().getViewport();
+        const viewportWidth = window.innerWidth / zoom;
+        const viewportCenterX = -viewX / zoom + viewportWidth / 2;
+        
+        const avgX = mainLineageNodes.reduce((sum, node) => sum + node.position.x + (node.width! / 2), 0) / mainLineageNodes.length;
+        const xOffset = viewportCenterX - avgX;
+
+        setNodes(nodes.map(n => ({
+            ...n,
+            position: { ...n.position, x: n.position.x + xOffset }
+        })));
+
+        fitView({ nodes: mainLineageNodes, padding: 0.2 });
+
+    }, [getNodes, setNodes, fitView, mainLineageIds]);
+
+    return null;
+}
+
+
 export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -98,6 +128,29 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
   const [showGenNumbers, setShowGenNumbers] = useState(true);
   const [highlightedPath, setHighlightedPath] = useState<Set<string>>(new Set());
   const [graphStats, setGraphStats] = useState<GraphStats>({ totalNodes: 0, visibleNodes: 0, maxGeneration: 0, minGeneration: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const { fitView } = useReactFlow();
+
+  const handleFullscreen = () => {
+    if (reactFlowWrapper.current) {
+        if (!document.fullscreenElement) {
+            reactFlowWrapper.current.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+  };
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+        setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
 
   const onConnect = useCallback(
     (params: any) =>
@@ -176,80 +229,20 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
     setHighlightedPath(new Set(pathIds || []));
   }, [initialData]);
 
-  const filterLineage = useCallback((ancestor: Ancestor, query: string): Ancestor | null => {
-    if (!query) {
-      return ancestor;
+  const mainLineageIds = useMemo(() => {
+    const ids: string[] = [];
+    let current: Ancestor | undefined = initialData;
+    while(current) {
+        ids.push(current.id);
+        current = current.children?.[0];
     }
-
-    const lowerCaseQuery = query.toLowerCase();
-    
-    // Find all nodes that match the search query
-    const matchingNodes: Ancestor[] = [];
-    const traverseForMatches = (current: Ancestor) => {
-      if (current.name.toLowerCase().includes(lowerCaseQuery)) {
-        matchingNodes.push(current);
-      }
-      if (current.children) {
-        current.children.forEach(traverseForMatches);
-      }
-    };
-    traverseForMatches(ancestor);
-    
-    if (matchingNodes.length === 0) return null;
-    
-    const primaryMatch = matchingNodes[0];
-
-    const getPathToRoot = (root: Ancestor, targetId: string): Ancestor[] | null => {
-      if (root.id === targetId) return [root];
-      if (root.children) {
-        for (const child of root.children) {
-          const path = getPathToRoot(child, targetId);
-          if (path) return [root, ...path];
-        }
-      }
-      return null;
-    };
-
-    const pathToMatch = getPathToRoot(ancestor, primaryMatch.id);
-
-    if (!pathToMatch) return null;
-
-    // Reconstruct the tree with only the path and the children of the matched node
-    const buildFilteredTree = (path: Ancestor[]): Ancestor => {
-        const root: Ancestor = { ...path[0], children: [] as Ancestor[] };
-        let currentNode = root;
-
-        for (let i = 1; i < path.length; i++) {
-            const nextNodeInPath: Ancestor = { ...path[i], children: [] as Ancestor[] };
-            if (i === path.length - 1) { // This is the matched node
-                const originalNode = path[i];
-                // Deep copy children to avoid issues with shared references
-                nextNodeInPath.children = originalNode.children ? JSON.parse(JSON.stringify(originalNode.children)) : [];
-            }
-            if (currentNode.children) {
-                currentNode.children.push(nextNodeInPath);
-            } else {
-                currentNode.children = [nextNodeInPath];
-            }
-            currentNode = nextNodeInPath;
-        }
-        
-        return root;
-    };
-
-    return buildFilteredTree(pathToMatch);
-  }, []);
+    return ids;
+  }, [initialData]);
 
   useEffect(() => {
     if (!initialData) return;
 
-    let filteredData = filterLineage(initialData, searchQuery);
-    
-    const allNodes: Node[] = [];
-    const allEdges: Edge[] = [];
-    const isSelected = (ancestor: Ancestor) => selectedAncestor?.id === ancestor.id;
-
-    let startAncestor: Ancestor | null = null;
+    let startAncestor: Ancestor | null = initialData;
     if (generationStartNode) {
         const findStart = (anc: Ancestor): Ancestor | null => {
             if (anc.id === generationStartNode) return anc;
@@ -261,9 +254,14 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
             }
             return null;
         }
-        startAncestor = filteredData ? findStart(filteredData) : null;
-        if(startAncestor) filteredData = startAncestor;
+        startAncestor = findStart(initialData) || initialData;
     }
+    
+    let filteredData = searchQuery ? filterLineage(initialData, searchQuery) : startAncestor;
+
+    const allNodes: Node[] = [];
+    const allEdges: Edge[] = [];
+    const isSelected = (ancestor: Ancestor) => selectedAncestor?.id === ancestor.id;
 
     const getGenerationOffset = (root: Ancestor, startId: string | null): number => {
         if (!startId) return 0;
@@ -365,8 +363,64 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           maxGeneration: Math.max(...generations, 0),
           minGeneration: Math.min(...generations, 0)
         });
+        
+        setTimeout(() => fitView({ padding: 0.2 }), 100);
     }
-  }, [handleNodeClick, selectedAncestor, searchQuery, filterLineage, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, layoutType, showGenNumbers, highlightedPath, handleHighlightPath]);
+  }, [handleNodeClick, selectedAncestor, searchQuery, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, layoutType, showGenNumbers, highlightedPath, handleHighlightPath, fitView]);
+  
+  const filterLineage = (root: Ancestor, query: string): Ancestor | null => {
+    const lowerCaseQuery = query.toLowerCase();
+    const matchingNodes: Ancestor[] = [];
+    
+    const findMatches = (ancestor: Ancestor) => {
+        if (ancestor.name.toLowerCase().includes(lowerCaseQuery)) {
+            matchingNodes.push(ancestor);
+        }
+        if (ancestor.children) {
+            ancestor.children.forEach(findMatches);
+        }
+    };
+    
+    findMatches(root);
+
+    if (matchingNodes.length === 0) return null;
+
+    // For simplicity, we focus on the first match and its direct lineage.
+    const mainMatch = matchingNodes[0];
+    const pathToMainMatch: string[] = [];
+    
+    const findPath = (ancestor: Ancestor, targetId: string, currentPath: string[]): boolean => {
+        currentPath.push(ancestor.id);
+        if (ancestor.id === targetId) return true;
+        if (ancestor.children) {
+            for (const child of ancestor.children) {
+                if (findPath(child, targetId, currentPath)) return true;
+            }
+        }
+        currentPath.pop();
+        return false;
+    };
+
+    findPath(root, mainMatch.id, pathToMainMatch);
+
+    const buildFilteredTree = (ancestor: Ancestor, path: Set<string>): Ancestor | null => {
+        if (!path.has(ancestor.id)) return null;
+
+        let children: Ancestor[] = [];
+        if (ancestor.id === mainMatch.id) {
+            // If this is the matched node, include all its children
+            children = ancestor.children?.map(c => ({...c})) || [];
+        } else if (ancestor.children) {
+            // Otherwise, only include children that are on the path
+            children = ancestor.children.map(child => buildFilteredTree(child, path)).filter(Boolean) as Ancestor[];
+        }
+        
+        return { ...ancestor, children };
+    };
+
+    return buildFilteredTree(root, new Set(pathToMainMatch));
+  };
+
   
   const handleSheetOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
@@ -382,7 +436,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
 
   return (
     <TooltipProvider>
-      <div className="w-full h-full rounded-lg border bg-card relative">
+      <div className="w-full h-full rounded-lg border bg-card relative" ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -396,8 +450,9 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           className="bg-background"
           proOptions={{ hideAttribution: true }}
         >
+          <ViewportCenter mainLineageIds={mainLineageIds} />
           {showBackground && <Background />}
-          <Controls />
+          <Controls showInteractive={false} />
           {showMiniMap && <MiniMap nodeStrokeWidth={3} zoomable pannable />}
           
           {/* Enhanced Control Panel */}
@@ -507,6 +562,21 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           {/* Toggle Controls */}
           <Panel position="top-right" className="m-2">
             <div className="flex flex-col gap-2">
+               <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFullscreen}
+                  >
+                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}</p>
+                </TooltipContent>
+              </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -514,7 +584,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
                     size="sm"
                     onClick={() => setShowMiniMap(!showMiniMap)}
                   >
-                    <Maximize2 className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
