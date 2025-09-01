@@ -453,7 +453,6 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           <ViewportCenter mainLineageIds={mainLineageIds} />
           {showBackground && <Background />}
           <Controls showInteractive={false} />
-          {showMiniMap && <MiniMap nodeStrokeWidth={3} zoomable pannable />}
           
           {/* Enhanced Control Panel */}
           <Panel position="bottom-left" className="m-2">
@@ -560,53 +559,54 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           </Panel>
           
           {/* Toggle Controls */}
-          <Panel position="top-right" className="m-2">
-            <div className="flex flex-col gap-2">
-               <Tooltip>
+          <Panel position="bottom-right" className="m-2 flex flex-col gap-2">
+            <div className="flex flex-col gap-2 p-2 rounded-lg bg-background/95 backdrop-blur-sm border shadow-lg">
+                <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
+                    <Button
                     variant="outline"
                     size="sm"
                     onClick={handleFullscreen}
-                  >
+                    >
                     {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                  </Button>
+                    </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}</p>
+                <TooltipContent side="left">
+                    <p>{isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}</p>
                 </TooltipContent>
-              </Tooltip>
+                </Tooltip>
 
-              <Tooltip>
+                <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
+                    <Button
                     variant={showMiniMap ? "default" : "outline"}
                     size="sm"
                     onClick={() => setShowMiniMap(!showMiniMap)}
-                  >
+                    >
                     <Users className="w-4 h-4" />
-                  </Button>
+                    </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Toggle minimap</p>
+                <TooltipContent side="left">
+                    <p>Toggle minimap</p>
                 </TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
+                </Tooltip>
+                
+                <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
+                    <Button
                     variant={showBackground ? "default" : "outline"}
                     size="sm"
                     onClick={() => setShowBackground(!showBackground)}
-                  >
+                    >
                     <Filter className="w-4 h-4" />
-                  </Button>
+                    </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Toggle background</p>
+                <TooltipContent side="left">
+                    <p>Toggle background</p>
                 </TooltipContent>
-              </Tooltip>
+                </Tooltip>
             </div>
+            {showMiniMap && <MiniMap nodeStrokeWidth={3} zoomable pannable />}
           </Panel>
           
           {nodes.length === 0 && searchQuery && (
