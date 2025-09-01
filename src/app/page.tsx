@@ -125,14 +125,11 @@ export default function Home() {
     if (allAncestors.length === 0) return null;
     
     const generations = [...new Set(allAncestors.map(a => a.generation))].sort((a, b) => a - b);
-    const marriedCount = allAncestors.filter(a => a.wife && a.wife.trim() !== '').length;
     
     return {
       totalPeople: allAncestors.length,
       generations: generations.length,
       maxGeneration: Math.max(...generations),
-      marriedCount,
-      founders: allAncestors.filter(a => a.generation === 1).length
     };
   }, [allAncestors]);
 
@@ -141,17 +138,6 @@ export default function Home() {
     <div className="w-full h-[calc(100vh-4rem)] relative">
        <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-background via-background/90 to-transparent">
         <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-          {/* Header with Logo */}
-          <div className='w-full items-center flex justify-center mb-4'>
-            <Image
-              src='/images/tarombo.png'
-              alt='tarombo'
-              width={400}
-              height={80}
-              className="drop-shadow-sm"
-            />
-          </div>
-          
           {/* Statistics Bar */}
           {stats && (
             <div className="flex justify-center mb-4">
@@ -167,18 +153,6 @@ export default function Home() {
                     <TreePine className="w-4 h-4 text-primary" />
                     <span className="font-medium">{stats.generations}</span>
                     <span className="text-muted-foreground">Generations</span>
-                  </div>
-                  <Separator orientation="vertical" className="h-4" />
-                  <div className="flex items-center gap-2">
-                    <Crown className="w-4 h-4 text-amber-500" />
-                    <span className="font-medium">{stats.founders}</span>
-                    <span className="text-muted-foreground">Founders</span>
-                  </div>
-                  <Separator orientation="vertical" className="h-4" />
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-pink-500" />
-                    <span className="font-medium">{stats.marriedCount}</span>
-                    <span className="text-muted-foreground">Married</span>
                   </div>
                 </div>
               </Card>
@@ -359,4 +333,3 @@ export default function Home() {
     </div>
   );
 }
-
