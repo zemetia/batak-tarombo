@@ -456,7 +456,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           {showMiniMap && <MiniMap nodeStrokeWidth={3} zoomable pannable />}
           
           {/* Enhanced Control Panel */}
-          <Panel position="top-left" className="m-2">
+          <Panel position="bottom-left" className="m-2">
             <Card className="p-3 bg-background/95 backdrop-blur-sm border shadow-lg">
               <div className="flex flex-col gap-3">
                 {/* Graph Stats */}
