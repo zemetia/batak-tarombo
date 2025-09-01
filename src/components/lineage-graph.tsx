@@ -87,7 +87,7 @@ interface GraphStats {
 }
 
 const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
-    const { getNodes, setNodes, fitView } = useReactFlow();
+    const { getNodes, setNodes, fitView, getViewport } = useReactFlow();
 
     useEffect(() => {
         const nodes = getNodes();
@@ -96,7 +96,7 @@ const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
         const mainLineageNodes = nodes.filter(n => mainLineageIds.includes(n.id));
         if (mainLineageNodes.length === 0) return;
 
-        const { x: viewX, y: viewY, zoom } = useReactFlow().getViewport();
+        const { x: viewX, y: viewY, zoom } = getViewport();
         const viewportWidth = window.innerWidth / zoom;
         const viewportCenterX = -viewX / zoom + viewportWidth / 2;
         
@@ -110,7 +110,7 @@ const ViewportCenter = ({ mainLineageIds }: { mainLineageIds: string[] }) => {
 
         fitView({ nodes: mainLineageNodes, padding: 0.2 });
 
-    }, [getNodes, setNodes, fitView, mainLineageIds]);
+    }, [getNodes, setNodes, fitView, mainLineageIds, getViewport]);
 
     return null;
 }
