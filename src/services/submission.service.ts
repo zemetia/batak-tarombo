@@ -335,14 +335,17 @@ export async function updateSubmissionStatus(
     adminId: string,
     adminNotes?: string
 ) {
+    const data: any = {
+        status,
+        adminId,
+        reviewedAt: new Date()
+    }
+    if (adminNotes) {
+        data.adminNotes = adminNotes;
+    }
     return prisma.dataSubmission.update({
         where: { id },
-        data: {
-            status,
-            adminId,
-            adminNotes,
-            reviewedAt: new Date()
-        },
+        data,
         include: {
             submittedBy: {
                 select: {
