@@ -445,27 +445,6 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
                   )}
                 </div>
                 
-                {/* Layout Controls */}
-                <div className="flex gap-1">
-                  {Object.keys(LAYOUT_CONFIGS).map((layout) => (
-                    <Tooltip key={layout}>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant={layoutType === layout ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setLayoutType(layout as LayoutType)}
-                          className="text-xs px-2 py-1 h-7"
-                        >
-                          {layout.charAt(0).toUpperCase()}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{layout.charAt(0).toUpperCase() + layout.slice(1)} layout</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </div>
-                
                 {/* View Controls */}
                 <div className="flex gap-1">
                   <Tooltip>
@@ -534,6 +513,27 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           {/* Toggle Controls */}
           <Panel position="bottom-right" className="m-2 hidden md:flex flex-col gap-2">
             <div className="flex flex-col gap-2 p-2 rounded-lg bg-background/95 backdrop-blur-sm border shadow-lg">
+                {/* Layout Controls */}
+                <div className="flex gap-1">
+                  {Object.keys(LAYOUT_CONFIGS).map((layout) => (
+                    <Tooltip key={layout}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={layoutType === layout ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setLayoutType(layout as LayoutType)}
+                          className="text-xs px-2 py-1 h-7"
+                        >
+                          {layout.charAt(0).toUpperCase()}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{layout.charAt(0).toUpperCase() + layout.slice(1)} layout</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+                <Separator/>
                 <Tooltip>
                 <TooltipTrigger asChild>
                     <Button
