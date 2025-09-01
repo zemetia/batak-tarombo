@@ -285,15 +285,14 @@ export default function Home() {
             
             {/* Statistics Bar */}
             {stats && (
-              <div className="pointer-events-auto">
+              <div className="pointer-events-auto absolute top-4 right-4 hidden md:block">
                 <Card className="p-3 bg-primary/5 border-primary/20 shadow-md">
-                  <div className="flex items-center gap-4 text-sm">
+                  <div className="flex flex-col gap-2 text-sm">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-primary" />
                       <span className="font-medium">{stats.totalPeople}</span>
                       <span className="text-muted-foreground">People</span>
                     </div>
-                    <Separator orientation="vertical" className="h-4" />
                     <div className="flex items-center gap-2">
                       <TreePine className="w-4 h-4 text-primary" />
                       <span className="font-medium">{stats.generations}</span>
