@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { registerContributor } from "@/lib/actions"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 
 export default function SignupPage() {
@@ -35,7 +36,9 @@ export default function SignupPage() {
     instagram: '',
   });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -49,6 +52,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const contributorData = {
           ...formData,
@@ -61,7 +65,15 @@ export default function SignupPage() {
         title: "Registration Successful",
         description: `Welcome, ${newContributor.fullName}! Your account has been created.`,
       });
-      // Optionally redirect user
+      
+      localStorage.setItem('user', JSON.stringify({ 
+        id: newContributor.id, 
+        name: newContributor.fullName, 
+        email: newContributor.email,
+        role: 'contributor'
+      }));
+      
+      router.push('/contributor');
     } catch (error) {
       console.error(error);
       toast({
@@ -69,6 +81,8 @@ export default function SignupPage() {
         title: "Registration Failed",
         description: "An account with this email may already exist.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -167,8 +181,8 @@ export default function SignupPage() {
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" required value={formData.password} onChange={handleInputChange}/>
               </div>
-              <Button type="submit" className="w-full">
-                Create an account
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Create an account'}
               </Button>
             </div>
           </form>

@@ -11,7 +11,7 @@ async function isDescendant(personId: string, potentialDescendantId: string): Pr
         if (currentNodeId === personId) {
             return true;
         }
-        const person = await prisma.person.findUnique({
+        const person: { fatherId: string | null } | null = await prisma.person.findUnique({
             where: { id: currentNodeId },
             select: { fatherId: true },
         });
@@ -105,7 +105,12 @@ export async function updatePerson(id: string, person: Partial<Omit<Ancestor, 'i
              }
         }
         
-        const dataToUpdate: Prisma.PersonUpdateInput = { ...person, fatherId: newFatherId };
+        const dataToUpdate: Prisma.PersonUpdateInput = { ...person };
+        if (newFatherId) {
+            dataToUpdate.father = { connect: { id: newFatherId } };
+        } else {
+            dataToUpdate.father = { disconnect: true };
+        }
         
         if (newFatherId) {
             const father = await prisma.person.findUnique({ where: { id: newFatherId }});

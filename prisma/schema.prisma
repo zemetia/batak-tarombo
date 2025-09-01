@@ -38,10 +38,12 @@ model ProposedPerson { //temporary
   birthOrder  Int       @default(0)
   father      ProposedPerson?   @relation("Children", fields: [fatherId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   fatherId    String?
+  originalPersonId String?  // Reference to original Person if editing existing
   dataSubmissionId  String?
   dataSubmission    DataSubmission? @relation(fields: [dataSubmissionId], references: [id], onDelete: Restrict)
 
   @@index([dataSubmissionId])
+  @@index([originalPersonId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,6 +59,8 @@ model Admin {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  reviewedSubmissions DataSubmission[]
 }
 
 model Contributor {
@@ -82,8 +86,16 @@ model Contributor {
 model DataSubmission {
   id                String      @id @default(uuid())
   changesDetail     String
-  status            String      @default("Pending") // Pending, Approved, Rejected
+  status            String      @default("waiting") // waiting, in_review, accepted, accepted_with_discuss, rejected, cancelled
   taromboProve      String // Image link
+  ancestorName      String
+  fatherName        String?
+  selectedAncestorId String?   // ID of the ancestor chosen for this proposal
+  proposalType      String     @default("lineage_edit") // lineage_edit, new_branch, correction
+  adminNotes        String?    // For admin comments/discussions
+  reviewedAt        DateTime?
+  reviewedBy        Admin?     @relation(fields: [adminId], references: [id])
+  adminId           String?
 
   submittedAt  DateTime    @default(now())
   
@@ -91,4 +103,9 @@ model DataSubmission {
   contributorId String
 
   proposedPersons ProposedPerson[]
+  
+  @@index([status])
+  @@index([contributorId])
+  @@index([selectedAncestorId])
+  @@index([contributorId, status])
 }

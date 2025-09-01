@@ -1,36 +1,56 @@
-
 'use client';
 
 import { LineageGraph } from '@/components/lineage-graph';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Search, Users, TreePine, Sparkles, TrendingUp, Crown, Filter, X } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Ancestor } from '@/lib/data';
-import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import { getLineageData, getAllAncestors } from '@/lib/actions';
+import { cn } from '@/lib/utils';
 
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Ancestor[]>([]);
   const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [generationFilter, setGenerationFilter] = useState<number | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const [lineageData, setLineageData] = useState<Ancestor | null>(null);
   const [allAncestors, setAllAncestors] = useState<Ancestor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const fetchData = async () => {
-        const [lineage, ancestors] = await Promise.all([
-            getLineageData(),
-            getAllAncestors()
-        ]);
-        setLineageData(lineage);
-        setAllAncestors(ancestors as Ancestor[]);
+        try {
+          setIsLoading(true);
+          const [lineage, ancestors] = await Promise.all([
+              getLineageData(),
+              getAllAncestors()
+          ]);
+          setLineageData(lineage);
+          setAllAncestors(ancestors as Ancestor[]);
+        } catch (error) {
+          console.error('Failed to load data:', error);
+        } finally {
+          setIsLoading(false);
+        }
     };
     fetchData();
+    
+    // Load search history from localStorage
+    const savedHistory = localStorage.getItem('searchHistory');
+    if (savedHistory) {
+      setSearchHistory(JSON.parse(savedHistory));
+    }
   }, []);
 
 
@@ -39,10 +59,27 @@ export default function Home() {
     setSearchQuery(query);
 
     if (query.length > 1) {
-      const filteredSuggestions = allAncestors.filter(ancestor =>
+      let filteredSuggestions = allAncestors.filter(ancestor =>
         ancestor.name.toLowerCase().includes(query.toLowerCase())
       );
-      setSuggestions(filteredSuggestions);
+      
+      // Apply generation filter if set
+      if (generationFilter) {
+        filteredSuggestions = filteredSuggestions.filter(ancestor => 
+          ancestor.generation === generationFilter
+        );
+      }
+      
+      // Sort by relevance (exact matches first, then by generation)
+      filteredSuggestions.sort((a, b) => {
+        const aExact = a.name.toLowerCase().startsWith(query.toLowerCase());
+        const bExact = b.name.toLowerCase().startsWith(query.toLowerCase());
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        return a.generation - b.generation;
+      });
+      
+      setSuggestions(filteredSuggestions.slice(0, 8)); // Limit to 8 suggestions
       setIsSuggestionsVisible(true);
     } else {
       setSuggestions([]);
@@ -54,6 +91,18 @@ export default function Home() {
     setSearchQuery(ancestor.name);
     setSuggestions([]);
     setIsSuggestionsVisible(false);
+    
+    // Add to search history
+    const newHistory = [ancestor.name, ...searchHistory.filter(h => h !== ancestor.name)].slice(0, 5);
+    setSearchHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  };
+  
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSuggestions([]);
+    setIsSuggestionsVisible(false);
+    setGenerationFilter(null);
   };
   
   const handleClickOutside = useCallback((event: MouseEvent) => {
@@ -68,55 +117,222 @@ export default function Home() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [handleClickOutside]);
+  
+  // Calculate statistics
+  const stats = useMemo(() => {
+    if (allAncestors.length === 0) return null;
+    
+    const generations = [...new Set(allAncestors.map(a => a.generation))].sort((a, b) => a - b);
+    const marriedCount = allAncestors.filter(a => a.wife && a.wife.trim() !== '').length;
+    
+    return {
+      totalPeople: allAncestors.length,
+      generations: generations.length,
+      maxGeneration: Math.max(...generations),
+      marriedCount,
+      founders: allAncestors.filter(a => a.generation === 1).length
+    };
+  }, [allAncestors]);
 
 
   return (
     <div className="w-full flex flex-col" style={{height: 'calc(100vh - 4rem)'}}>
-       <div className="bg-background/80 backdrop-blur-sm z-10 pt-8 pb-6 border-b">
-        <div className="container mx-auto px-4 md:px-6 max-w-4xl text-center">
-          <div className='w-full items-center flex justify-center'>
+       <div className="bg-gradient-to-b from-background via-background/95 to-background/80 backdrop-blur-sm z-10 pt-6 pb-4 border-b">
+        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+          {/* Header with Logo */}
+          <div className='w-full items-center flex justify-center mb-6'>
             <Image
               src='/images/tarombo.png'
               alt='tarombo'
               width={500}
               height={100}
+              className="drop-shadow-sm"
             />
           </div>
-          <p className="text-lg text-muted-foreground mb-8">
-            Explore the rich family history of the Batak people. Search for your ancestors and discover your roots.
-          </p>
+          
+          {/* Statistics Bar */}
+          {stats && (
+            <div className="flex justify-center mb-6">
+              <Card className="p-4 bg-primary/5 border-primary/20">
+                <div className="flex items-center gap-6 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="font-medium">{stats.totalPeople}</span>
+                    <span className="text-muted-foreground">People</span>
+                  </div>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div className="flex items-center gap-2">
+                    <TreePine className="w-4 h-4 text-primary" />
+                    <span className="font-medium">{stats.generations}</span>
+                    <span className="text-muted-foreground">Generations</span>
+                  </div>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-amber-500" />
+                    <span className="font-medium">{stats.founders}</span>
+                    <span className="text-muted-foreground">Founders</span>
+                  </div>
+                  <Separator orientation="vertical" className="h-4" />
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-pink-500" />
+                    <span className="font-medium">{stats.marriedCount}</span>
+                    <span className="text-muted-foreground">Married</span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
+          
+          <div className="text-center mb-6">
+            <p className="text-lg text-muted-foreground">
+              Explore the rich family history of the Batak people. Search for your ancestors and discover your roots.
+            </p>
+          </div>
+          
+          {/* Enhanced Search */}
           <div ref={searchContainerRef} className="relative max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search for an ancestor..."
-                className="w-full pl-12 pr-4 py-7 text-lg rounded-full shadow-lg"
+                className={cn(
+                  "w-full pl-12 pr-20 py-6 text-lg rounded-full shadow-lg transition-all duration-200",
+                  "focus:ring-2 focus:ring-primary/20 focus:border-primary",
+                  searchQuery && "pr-32"
+                )}
                 aria-label="Search for an ancestor"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={() => { if(searchQuery) setIsSuggestionsVisible(true)}}
               />
+              
+              {/* Search Controls */}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {generationFilter && (
+                  <Badge variant="outline" className="text-xs">
+                    Gen {generationFilter}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-1 h-4 w-4 p-0"
+                      onClick={() => setGenerationFilter(null)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+                  className={cn(
+                    "h-8 w-8 p-0 rounded-full",
+                    showAdvancedSearch && "bg-primary/10 text-primary"
+                  )}
+                >
+                  <Filter className="h-4 w-4" />
+                </Button>
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearSearch}
+                    className="h-8 w-8 p-0 rounded-full"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </div>
-             {isSuggestionsVisible && suggestions.length > 0 && (
+            
+            {/* Advanced Search Panel */}
+            {showAdvancedSearch && (
+              <Card className="absolute top-full mt-2 w-full z-30 shadow-xl border-primary/20">
+                <CardHeader className="pb-3">
+                  <h3 className="font-semibold text-sm">Filter by Generation</h3>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex flex-wrap gap-2">
+                    {stats && Array.from({length: stats.maxGeneration}, (_, i) => i + 1).map(gen => (
+                      <Button
+                        key={gen}
+                        variant={generationFilter === gen ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setGenerationFilter(generationFilter === gen ? null : gen)}
+                        className="text-xs"
+                      >
+                        Gen {gen}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Suggestions */}
+            {isSuggestionsVisible && suggestions.length > 0 && (
               <Card className="absolute top-full mt-2 w-full z-20 shadow-xl max-h-80 overflow-y-auto">
                   <ul className="divide-y">
                     {suggestions.map(ancestor => (
                        <li
                         key={ancestor.id}
-                        className="p-4 hover:bg-accent flex items-center gap-4 cursor-pointer"
+                        className="p-4 hover:bg-accent/50 flex items-center gap-4 cursor-pointer transition-colors duration-150"
                         onClick={() => handleSuggestionClick(ancestor)}
                       >
-                         <Avatar className="w-10 h-10 border">
-                           <AvatarFallback>{ancestor.name.charAt(0)}</AvatarFallback>
+                         <Avatar className="w-10 h-10 border ring-2 ring-primary/10">
+                           <AvatarFallback className="bg-primary/10">
+                             {ancestor.name.charAt(0)}
+                           </AvatarFallback>
                          </Avatar>
-                         <div>
-                            <p className="font-semibold">{ancestor.name}</p>
-                            <p className="text-sm text-muted-foreground">Generation {ancestor.generation}</p>
+                         <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold">{ancestor.name}</p>
+                              {ancestor.generation === 1 && (
+                                <Crown className="w-3 h-3 text-amber-500" />
+                              )}
+                              {ancestor.wife && (
+                                <Badge variant="secondary" className="text-xs">Married</Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span>Generation {ancestor.generation}</span>
+                              {ancestor.wife && (
+                                <>
+                                  <span>•</span>
+                                  <span>Wife: {ancestor.wife}</span>
+                                </>
+                              )}
+                            </div>
                          </div>
+                         <TrendingUp className="w-4 h-4 text-muted-foreground" />
                       </li>
                     ))}
                   </ul>
+              </Card>
+            )}
+            
+            {/* Search History */}
+            {!searchQuery && searchHistory.length > 0 && (
+              <Card className="absolute top-full mt-2 w-full z-15 shadow-lg">
+                <CardHeader className="pb-2">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Recent Searches</h3>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex flex-wrap gap-2">
+                    {searchHistory.map((query, index) => (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSearchQuery(query)}
+                        className="text-xs h-7 px-2"
+                      >
+                        {query}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
               </Card>
             )}
           </div>
@@ -124,11 +340,21 @@ export default function Home() {
       </div>
 
       <div className="flex-1 w-full h-full">
-        {lineageData ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="text-muted-foreground">Loading lineage data...</p>
+            </div>
+          </div>
+        ) : lineageData ? (
           <LineageGraph searchQuery={searchQuery} initialData={lineageData} />
         ) : (
           <div className="flex items-center justify-center w-full h-full">
-            <p>Loading lineage data...</p>
+            <div className="text-center">
+              <TreePine className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No lineage data available</p>
+            </div>
           </div>
         )}
       </div>

@@ -4,8 +4,8 @@ export interface Ancestor {
   id: string;
   name: string;
   generation: number;
-  wife?: string;
-  description?: string;
+  wife?: string | null;
+  description?: string | null;
   birthOrder?: number;
   fatherId?: string | null;
   children?: Ancestor[];
