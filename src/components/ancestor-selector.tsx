@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Users, ChevronRight, TreePine } from 'lucide-react';
+import { Search, Users, ChevronRight } from 'lucide-react';
 import { getAllAncestors } from '@/lib/actions';
 import { type Ancestor } from '@/lib/data';
 
@@ -117,40 +118,19 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TreePine className="w-5 h-5" />
-            Select Ancestor for Your Proposal
-          </CardTitle>
-          <CardDescription>
-            Loading available ancestors...
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Loading ancestors...</p>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="flex flex-col h-full">
+            <div className="text-center py-8 flex-1 flex flex-col justify-center items-center">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+                <p className="mt-2 text-muted-foreground">Loading ancestors...</p>
+            </div>
+        </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TreePine className="w-5 h-5" />
-          Select Ancestor for Your Proposal
-        </CardTitle>
-        <CardDescription>
-          Choose an ancestor whose descendants you want to edit. You can only edit people who are descendants of your chosen ancestor.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+     <div className="flex flex-col h-full">
         {/* Search */}
-        <div className="relative">
+        <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
             placeholder="Search ancestors by name or generation..."
@@ -162,7 +142,7 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
 
         {/* Selected Ancestor Info */}
         {selectedAncestor && (
-          <Card className="border-primary">
+          <Card className="border-primary mb-4">
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -187,8 +167,8 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
         )}
 
         {/* Ancestors List */}
-        <ScrollArea className="h-96 border rounded-lg">
-          <div className="p-2 space-y-2">
+        <ScrollArea className="flex-1 -mx-6">
+          <div className="px-6 space-y-2">
             {filteredAncestors.length === 0 ? (
               <div className="text-center py-8">
                 <Users className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
@@ -252,7 +232,6 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
             {isLoading ? 'Creating Proposal...' : 'Create Proposal'}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
   );
 }

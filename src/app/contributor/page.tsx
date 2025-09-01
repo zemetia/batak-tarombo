@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { GitBranch, User, Plus, Clock, CheckCircle, XCircle, MessageSquare, Upload } from 'lucide-react';
+import { GitBranch, User, Plus, Clock, CheckCircle, XCircle, MessageSquare, Upload, TreePine } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getSubmissionsByContributor, createSubmission, getActiveProposal, createProposal, cancelProposal, forkDescendantTree } from '@/lib/actions';
@@ -259,12 +259,23 @@ export default function ContributorPage() {
           
           {/* Ancestor Selector Dialog */}
           <Dialog open={showAncestorSelector} onOpenChange={setShowAncestorSelector}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
-              <AncestorSelector 
-                onSelect={handleCreateProposal}
-                onCancel={() => setShowAncestorSelector(false)}
-                isLoading={isLoading}
-              />
+            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
+               <DialogHeader className="p-6 pb-0">
+                <DialogTitle className="flex items-center gap-2">
+                    <TreePine className="w-5 h-5" />
+                    Select Ancestor for Your Proposal
+                </DialogTitle>
+                <DialogDescription>
+                    Choose an ancestor whose descendants you want to edit. You can only edit people who are descendants of your chosen ancestor.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex-1 overflow-hidden px-6 pb-6">
+                 <AncestorSelector 
+                    onSelect={handleCreateProposal}
+                    onCancel={() => setShowAncestorSelector(false)}
+                    isLoading={isLoading}
+                  />
+              </div>
             </DialogContent>
           </Dialog>
           
