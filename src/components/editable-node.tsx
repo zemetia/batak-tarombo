@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useTranslations } from 'next-intl';
 
 
 interface EditableNodeData extends Ancestor {
@@ -30,6 +31,7 @@ interface EditableNodeData extends Ancestor {
 }
 
 export const EditableNode = React.memo(({ data, id }: NodeProps<EditableNodeData>) => {
+  const t = useTranslations('EditableNode');
   const { onEdit, onAddChild, onDelete, onToggleCollapse, onReorder, isNew, isEdited, isCollapsed, hasChildren, hasSiblings, ...person } = data;
 
   return (
@@ -56,9 +58,9 @@ export const EditableNode = React.memo(({ data, id }: NodeProps<EditableNodeData
         <div className="text-left overflow-hidden flex-grow">
           <p className="font-bold font-headline text-lg truncate">{data.name}</p>
           <p className="text-sm text-muted-foreground">
-            {data.wife ? `Wife: ${data.wife}`: 'No wife recorded'}
+            {data.wife ? t('wife', {name: data.wife}) : t('noWife')}
           </p>
-           {data.generation && <p className="text-xs text-muted-foreground">Generation {data.generation}</p>}
+           {data.generation && <p className="text-xs text-muted-foreground">{t('generation', {gen: data.generation})}</p>}
         </div>
 
         {hasChildren && (
@@ -83,10 +85,10 @@ export const EditableNode = React.memo(({ data, id }: NodeProps<EditableNodeData
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(person)}>
-                    <Pencil className="mr-2 h-4 w-4" /> Edit Person
+                    <Pencil className="mr-2 h-4 w-4" /> {t('actions.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onAddChild(person)}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Child
+                    <PlusCircle className="mr-2 h-4 w-4" /> {t('actions.addChild')}
                 </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -94,20 +96,20 @@ export const EditableNode = React.memo(({ data, id }: NodeProps<EditableNodeData
                         onSelect={(e) => e.preventDefault()}
                         className="text-red-600 focus:text-red-600"
                     >
-                         <Trash2 className="mr-2 h-4 w-4" /> Delete
+                         <Trash2 className="mr-2 h-4 w-4" /> {t('actions.delete')}
                     </DropdownMenuItem>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogTitle>{t('alert.title')}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete {person.name} and all their descendants.
+                        {t('alert.description', {name: person.name})}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t('alert.cancel')}</AlertDialogCancel>
                       <AlertDialogAction onClick={() => onDelete(person)} className='bg-red-600 hover:bg-red-700'>
-                        Delete
+                        {t('alert.confirm')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

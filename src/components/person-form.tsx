@@ -18,16 +18,20 @@ import * as z from 'zod';
 import type { Ancestor } from '@/lib/data';
 import { useEffect } from 'react';
 import { ComboBox } from './ui/combobox';
+import { useTranslations } from 'next-intl';
 
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  wife: z.string().optional(),
-  description: z.string().optional(),
-  fatherId: z.string().nullable().optional(),
-  birthOrder: z.number().int().optional(),
-});
 
-export type PersonFormData = z.infer<typeof formSchema>;
+
+// Define type based on a base schema if needed, but since we use dynamic schema inside, 
+// we might need to define a static type or infer from the inner one. 
+// However, for the props interface, we can just use a manual type or keep the interface compatible.
+export type PersonFormData = {
+  name: string;
+  wife?: string;
+  description?: string;
+  fatherId?: string | null;
+  birthOrder?: number;
+};
 
 interface PersonFormProps {
   isOpen: boolean;
@@ -38,6 +42,16 @@ interface PersonFormProps {
 }
 
 export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potentialFathers }: PersonFormProps) {
+  const t = useTranslations('PersonForm');
+  
+  const formSchema = z.object({
+    name: z.string().min(2, { message: t('validation.nameMin') }),
+    wife: z.string().optional(),
+    description: z.string().optional(),
+    fatherId: z.string().nullable().optional(),
+    birthOrder: z.number().int().optional(),
+  });
+
   const {
     handleSubmit,
     control,
@@ -49,10 +63,14 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
       name: '',
       wife: '',
       description: '',
-      fatherId: null,
       birthOrder: 0,
     },
   });
+
+  // Re-define schema inside component to use translations, or handle validation message differently. 
+  // Since zod schema is defined outside, I successfully moved it inside or I can invoke another hook or pass message.
+  // Actually, standard practice with next-intl and zod is to use useTranslations inside component. I moved schema define inside.
+
 
   useEffect(() => {
     if (personData) {
@@ -74,15 +92,15 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
     }
   }, [personData, reset, isOpen]);
 
-  const formTitle = personData?.id ? `Edit ${personData.name}` : 'Add New Person';
+  const formTitle = personData?.id ? t('titles.edit', {name: personData.name}) : t('titles.add');
   const formDescription = personData?.id
-    ? "Make changes to this person's profile."
+    ? t('titles.editDesc')
     : personData?.fatherId
-    ? `Adding a new child for generation ${personData.generation}.`
-    : 'Add a new root person to the lineage.';
+    ? t('titles.addChildDesc', {generation: personData.generation})
+    : t('titles.addRootDesc');
     
   const fatherOptions = [
-    { value: "null", label: "None (Root Person)" },
+    { value: "null", label: t('options.root') },
     ...potentialFathers.map((ancestor) => ({
       value: ancestor.id,
       label: ancestor.name,
@@ -99,7 +117,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('labels.name')}</Label>
               <Controller
                 name="name"
                 control={control}
@@ -109,7 +127,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
             </div>
             
             <div className="grid gap-2">
-              <Label htmlFor="fatherId">Father</Label>
+              <Label htmlFor="fatherId">{t('labels.father')}</Label>
                 <Controller
                 name="fatherId"
                 control={control}
@@ -118,16 +136,16 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
                         options={fatherOptions}
                         value={field.value ?? "null"}
                         onChange={field.onChange}
-                        placeholder="Select father..."
-                        searchPlaceholder="Search for father..."
-                        notfoundText="No father found."
+                        placeholder={t('placeholders.selectFather')}
+                        searchPlaceholder={t('placeholders.searchFather')}
+                        notfoundText={t('placeholders.noFather')}
                     />
                 )}
                 />
             </div>
           
             <div className="grid gap-2">
-              <Label htmlFor="wife">Wife</Label>
+              <Label htmlFor="wife">{t('labels.wife')}</Label>
               <Controller
                 name="wife"
                 control={control}
@@ -136,7 +154,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
             </div>
 
              <div className="grid gap-2">
-              <Label htmlFor="birthOrder">Birth Order</Label>
+              <Label htmlFor="birthOrder">{t('labels.birthOrder')}</Label>
               <Controller
                 name="birthOrder"
                 control={control}
@@ -145,7 +163,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t('labels.description')}</Label>
                <Controller
                 name="description"
                 control={control}
@@ -154,8 +172,8 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit">Save changes</Button>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{t('buttons.cancel')}</Button>
+            <Button type="submit">{t('buttons.save')}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

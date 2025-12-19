@@ -1,0 +1,454 @@
+{
+    "HomePage": {
+        "title": "Partuturan Batak",
+        "searchPlaceholder": "Cari leluhur...",
+        "noData": "Tidak ada data silsilah",
+        "loading": "Memuat data...",
+        "generations": "Generasi",
+        "people": "Orang",
+        "filterByGeneration": "Saring berdasarkan Generasi",
+        "recentSearches": "Pencarian Terakhir",
+        "gen": "Gen",
+        "married": "Menikah",
+        "wife": "Istri"
+    },
+    "Layout": {
+        "title": "Silsilah Batak",
+        "description": "Jelajahi dan berkontribusi pada silsilah keluarga Batak."
+    },
+    "Header": {
+        "nav": {
+            "home": "Beranda",
+            "about": "Tentang",
+            "contribute": "Kontribusi",
+            "donation": "Donasi",
+            "admin": "Panel Admin"
+        },
+        "guest": {
+            "name": "Tamu",
+            "email": "tamu@contoh.com",
+            "login": "Masuk",
+            "signup": "Daftar"
+        },
+        "switchLanguage": "Ganti Bahasa"
+    },
+    "LoginPage": {
+        "title": "Masuk",
+        "description": "Pilih jenis akun Anda dan masuk di bawah ini",
+        "contributor": "Kontributor",
+        "admin": "Admin",
+        "email": "Email",
+        "password": "Kata Sandi",
+        "placeholderEmail": "kontributor@contoh.com",
+        "submitContributor": "Masuk sebagai Kontributor",
+        "submitAdmin": "Masuk sebagai Admin",
+        "loading": "Sedang masuk...",
+        "noAccount": "Belum punya akun?",
+        "signup": "Daftar",
+        "toast": {
+            "successTitle": "Masuk Berhasil",
+            "successDesc": "Selamat datang kembali, {name}!",
+            "failTitle": "Masuk Gagal",
+            "failDesc": "Email atau kata sandi salah.",
+            "errorTitle": "Terjadi kesalahan",
+            "errorDesc": "Sesuatu berjalan salah. Silakan coba lagi."
+        }
+    },
+    "SignupPage": {
+        "title": "Pendaftaran Kontributor",
+        "description": "Buat akun untuk mulai berkontribusi pada silsilah.",
+        "labels": {
+            "fullName": "Nama Lengkap",
+            "birthday": "Tanggal Lahir",
+            "pickDate": "Pilih tanggal",
+            "whatsapp": "Nomor WhatsApp",
+            "address": "Alamat",
+            "city": "Kota",
+            "country": "Negara",
+            "facebook": "Facebook (Opsional)",
+            "instagram": "Instagram (Opsional)",
+            "email": "Email",
+            "password": "Kata Sandi"
+        },
+        "placeholders": {
+            "fullName": "Masukkan nama lengkap Anda",
+            "whatsapp": "+62 123 4567 890",
+            "address": "Masukkan alamat lengkap Anda",
+            "city": "contoh: Jakarta",
+            "country": "contoh: Indonesia",
+            "email": "m@contoh.com"
+        },
+        "buttons": {
+            "create": "Buat Akun",
+            "creating": "Membuat akun..."
+        },
+        "haveAccount": "Sudah punya akun?",
+        "login": "Masuk",
+        "toasts": {
+            "success": "Pendaftaran Berhasil",
+            "successDesc": "Selamat datang, {name}! Akun Anda telah dibuat.",
+            "failed": "Pendaftaran Gagal",
+            "failedDesc": "Akun dengan email ini mungkin sudah ada."
+        }
+    },
+    "AboutPage": {
+        "title": "Martarombo: Menelusuri Akar Identitas",
+        "subtitle": "Sebuah perjalanan ke jantung budaya Batak, di mana garis keturunan adalah tenunan suci yang mengikat masyarakat.",
+        "sections": {
+            "one": {
+                "title": "Siapakah Batak?",
+                "content1": "Orang Batak adalah permata budaya dari dataran tinggi Sumatera Utara. Disatukan oleh mitos leluhur dan rumpun bahasa yang khas, kami dikenal karena kepatuhan teguh pada <bold>Adat</bold> dan struktur sosial yang mengikat kami menjadi satu tubuh.",
+                "content2": "Mulai dari ukiran <bold>Gorga</bold> yang rumit hingga <bold>Jabu Bolon</bold> yang megah, budaya kami adalah bukti ketangguhan. Namun monumen terbesar kami bukanlah batu atau kayu—melainkan nama-nama yang terukir dalam ingatan."
+            },
+            "two": {
+                "title": "Dalihan Na Tolu: Tiga Tungku Kehidupan",
+                "content1": "Sendi masyarakat kami berdiri kokoh di atas <bold>Dalihan Na Tolu</bold>. Filosofi ini mengatur peran sosial antara <bold>Hula-hula</bold> (pihak pemberi istri), <bold>Boru</bold> (pihak penerima istri), dan <bold>Dongan Tubu</bold> (teman semarga).",
+                "content2": "Ini mengajarkan kami: <bold>Somba marhula-hula</bold> (Hormat kepada hula-hula), <bold>Elek marboru</bold> (Mengayomi boru), dan <bold>Manat mardongan tubu</bold> (Hati-hati dengan teman semarga). Inilah kompas kehidupan sosial kami."
+            },
+            "three": {
+                "title": "Tarombo: Silsilah Suci",
+                "content1": "<bold>Tarombo</bold> lebih dari sekadar pohon keluarga; itu adalah buku sejarah dan kartu identitas kami. Ia menelusuri garis keturunan patrilineal kembali ke <bold>Si Raja Batak</bold>. Mengetahui Tarombo Anda berarti mengetahui dengan pasti di mana Anda berdiri dalam semesta kekerabatan Batak.",
+                "content2": "Secara tradisional, tarombo diturunkan secara lisan atau digambar tangan pada diagram kertas yang disimpan keluarga. Saat ini, banyak yang tersimpan sebagai file digital sederhana atau foto, namun intinya tetap sama: pilar budaya Batak yang menghubungkan generasi sekarang dengan akar leluhur mereka."
+            },
+            "four": {
+                "title": "Misi Kami",
+                "cards": {
+                    "batak": {
+                        "title": "Jaga Identitas",
+                        "desc": "Memastikan setiap keturunan Batak, di mana pun mereka lahir, dapat menelusuri akar mereka dan memahami tempat mereka dalam Dalihan Na Tolu."
+                    },
+                    "indonesia": {
+                        "title": "Perkaya Warisan",
+                        "desc": "Menyumbangkan arsip hidup yang mendetail bagi mozaik budaya Indonesia, menunjukkan kedalaman sistem kekerabatan Nusantara."
+                    },
+                    "world": {
+                        "title": "Arsip Global",
+                        "desc": "Menawarkan kepada dunia jendela ke salah satu sistem garis keturunan antropologis yang paling canggih dan terpelihara dengan baik."
+                    }
+                }
+            },
+            "five": {
+                "title": "Martarombo: Sambungkan Kembali Akar Anda",
+                "content": "Ada pepatah: <bold>\"Jolo tinittip sanggar, laho bahen huru-huan. Jolo sinungkun marga, asa binoto partuturan.\"</bold> Mari bergabung memetakan pohon keluarga besar Batak.",
+                "button": "Mulai Berkontribusi"
+            }
+        }
+    },
+    "ContributePage": {
+        "header": {
+            "title": "Manjujung Baringin",
+            "subtitle": "Menjaga Pohon Beringin. Pengetahuan Anda memperkuat akar warisan kita bersama."
+        },
+        "why": {
+            "title": "Setiap Nama Berharga",
+            "p1": "Seperti <bold>Baringin</bold> yang memberikan naungan dengan banyak akar dan cabangnya, Tarombo melindungi identitas kita. Nama yang hilang ibarat ranting yang patah.",
+            "p2": "Dengan mencatat para tetua, orang tua, dan anak-anak, Anda memastikan mereka menempati tempat yang sah dalam sejarah. Anda tidak hanya memasukkan data; Anda melakukan tindakan pengabdian budaya."
+        },
+        "how": {
+            "title": "Cara Berkontribusi",
+            "subtitle": "Bergabunglah dengan upaya komunitas dalam empat langkah sederhana.",
+            "steps": {
+                "one": {
+                    "title": "Gabung Komunitas",
+                    "desc": "Buat akun kontributor untuk memulai perjalanan Anda."
+                },
+                "two": {
+                    "title": "Bagikan Pengetahuan",
+                    "desc": "Bagikan diagram silsilah atau tanyakan pada punguan marga / kepala adat marga kalian untuk informasi yang akurat."
+                },
+                "three": {
+                    "title": "Tinjauan Komunitas",
+                    "desc": "Admin dan tetua memverifikasi data untuk memastikan Tarombo tetap akurat."
+                },
+                "four": {
+                    "title": "Lestarikan Selamanya",
+                    "desc": "Saksikan pohon itu tumbuh saat kontribusi Anda menghubungkan keluarga."
+                }
+            }
+        },
+        "cta": {
+            "title": "Siap meninggalkan jejak?",
+            "text": "Jangan biarkan cerita itu pudar. Ambil catatan Anda, telepon kakek-nenek, dan bantu kami mendigitalkan kearifan leluhur.",
+            "createAccount": "Jadi Kontributor",
+            "signIn": "Masuk untuk Berkontribusi"
+        }
+    },
+    "DonationPage": {
+        "title": "Siurupan: Saling Membantu",
+        "description": "Dukung pelestarian digital budaya Batak.",
+        "content": {
+            "p1": "Dalam budaya Batak, <bold>Siurupan</bold> berarti saling membantu untuk kebaikan bersama. Proyek ini dikelola oleh sukarelawan yang berdedikasi menjaga sejarah kita tetap hidup.",
+            "p2": "Donasi Anda membantu menutupi biaya server, pengembangan fitur baru, dan upaya penelitian untuk memverifikasi garis keturunan kuno.",
+            "p3": "Bantu kami menjaga Jabu Bolon digital ini tetap berdiri kokoh untuk generasi berikutnya. Mauliate godang!"
+        },
+        "button": "Dukung Kami"
+    },
+    "ContributorPage": {
+        "header": {
+            "welcome": "Selamat Datang, {name}",
+            "desc": "Kelola kontribusi Anda dan ajukan perubahan pada silsilah keluarga."
+        },
+        "activeProposal": {
+            "title": "Proposal Aktif",
+            "desc": "Anda memiliki proposal aktif untuk <bold>{ancestorName}</bold>",
+            "continue": "Lanjutkan Mengedit",
+            "cancel": "Batalkan Proposal",
+            "exists": "Proposal Aktif Ada",
+            "existsDesc": "Harap batalkan proposal Anda saat ini sebelum membuat yang baru."
+        },
+        "newProposal": {
+            "title": "Buat Proposal Baru",
+            "desc": "Pilih leluhur untuk mulai mengedit keturunan mereka.",
+            "start": "Mulai Proposal Baru"
+        },
+        "yourProposals": {
+            "title": "Proposal Anda",
+            "desc": "Lacak status proposal yang Anda kirimkan.",
+            "empty": "Belum ada proposal yang dikirim."
+        },
+        "table": {
+            "ancestor": "Leluhur",
+            "father": "Ayah",
+            "status": "Status",
+            "submitted": "Dikirim",
+            "note": "Catatan: {note}"
+        },
+        "dialog": {
+            "selectTitle": "Pilih Leluhur untuk Proposal Anda",
+            "selectDesc": "Pilih leluhur yang keturunannya ingin Anda edit. Anda hanya dapat mengedit orang yang merupakan keturunan dari leluhur pilihan Anda.",
+            "createTitle": "Buat Detail Proposal",
+            "createDesc": "Berikan detail tentang perubahan yang Anda usulkan pada keturunan <bold>{name}</bold>.",
+            "ancestorLabel": "Leluhur Terpilih",
+            "changesLabel": "Detail Perubahan *",
+            "changesPlaceholder": "Jelaskan perubahan atau informasi baru...",
+            "proofLabel": "Bukti/URL Sumber *",
+            "proofPlaceholder": "Tautan ke dokumen silsilah atau sumber",
+            "submit": "Buat Proposal",
+            "submitting": "Mengirimkan..."
+        },
+        "toasts": {
+            "cancelled": "Proposal Dibatalkan",
+            "cancelledDesc": "Proposal Anda telah berhasil dibatalkan.",
+            "created": "Proposal Dibuat",
+            "createdDesc": "Proposal Anda telah dibuat. Anda sekarang dapat mengedit silsilah keluarga."
+        },
+        "status": {
+            "waiting": "Menunggu",
+            "in_review": "Dalam Tinjauan",
+            "accepted": "Diterima",
+            "accepted_with_discuss": "Diterima (dengan Diskusi)",
+            "rejected": "Ditolak",
+            "cancelled": "Dibatalkan"
+        }
+    },
+    "EditTreePage": {
+        "header": {
+            "editProposal": "Edit Proposal: {name}",
+            "editTree": "Edit Silsilah",
+            "proposalMode": "Mode Proposal",
+            "addRoot": "Tambah Orang Tua"
+        },
+        "stats": {
+            "people": "{count} orang",
+            "generations": "{count} generasi",
+            "new": "{count} baru",
+            "edited": "{count} diedit"
+        },
+        "tabs": {
+            "tree": "Tampilan Pohon",
+            "history": "Riwayat ({count})",
+            "settings": "Pengaturan"
+        },
+        "controls": {
+            "visible": "{count} terlihat",
+            "expandAll": "Buka semua",
+            "collapseAll": "Tutup semua"
+        },
+        "history": {
+            "recent": "Perubahan Terakhir",
+            "empty": "Belum ada perubahan. Mulai mengedit untuk melihat riwayat Anda di sini."
+        },
+        "settings": {
+            "display": "Opsi Tampilan",
+            "minimap": "Tampilkan minimap",
+            "background": "Tampilkan latar",
+            "enabled": "Aktif",
+            "disabled": "Tidak aktif",
+            "statistics": "Statistik",
+            "totalPeople": "Total Orang",
+            "totalGenerations": "Generasi",
+            "newAdditions": "Penambahan Baru",
+            "modified": "Diubah"
+        }
+    },
+    "AdminPage": {
+        "header": {
+            "title": "Panel Admin",
+            "welcome": "Selamat datang, {name}. Kelola pengguna dan pengajuan data silsilah."
+        },
+        "cards": {
+            "admins": "Total Admin",
+            "contributors": "Kontributor",
+            "pending": "Pengajuan Tertunda",
+            "total": "Total Pengajuan"
+        },
+        "tabs": {
+            "submissions": "Pengajuan Data",
+            "contributors": "Kontributor",
+            "admins": "Pengguna Admin"
+        },
+        "table": {
+            "ancestor": "Nama Leluhur",
+            "father": "Nama Ayah",
+            "submittedBy": "Dikirim Oleh",
+            "status": "Status",
+            "actions": "Tindakan",
+            "name": "Nama",
+            "email": "Email",
+            "location": "Lokasi",
+            "submissions": "Pengajuan",
+            "joined": "Bergabung",
+            "role": "Peran",
+            "created": "Dibuat"
+        },
+        "status": {
+            "waiting": "Menunggu",
+            "in_review": "Dalam Tinjauan",
+            "accepted": "Diterima",
+            "accepted_with_discuss": "Diterima (dengan Diskusi)",
+            "rejected": "Ditolak",
+            "placeholder": "Pilih status"
+        },
+        "buttons": {
+            "review": "Tinjau",
+            "addAdmin": "Tambah Admin",
+            "updateStatus": "Perbarui Status",
+            "updating": "Memperbarui...",
+            "createAdmin": "Buat Admin",
+            "creating": "Membuat..."
+        },
+        "dialog": {
+            "addAdmin": {
+                "title": "Tambah Admin Baru",
+                "desc": "Buat akun admin baru dengan akses sistem penuh.",
+                "fullName": "Nama Lengkap",
+                "email": "Email",
+                "password": "Kata Sandi"
+            },
+            "review": {
+                "title": "Tinjau Pengajuan",
+                "desc": "Tinjau dan perbarui status pengajuan silsilah ini.",
+                "ancestorName": "Nama Leluhur",
+                "fatherName": "Nama Ayah",
+                "submittedBy": "Dikirim Oleh",
+                "notSpecified": "Tidak ditentukan",
+                "changes": "Detail Perubahan",
+                "proof": "Bukti/Sumber",
+                "status": "Status",
+                "notes": "Catatan Admin (Opsional)",
+                "notesPlaceholder": "Tambahkan catatan atau umpan balik untuk kontributor..."
+            }
+        },
+        "toasts": {
+            "adminCreated": "Admin Dibuat",
+            "adminCreatedDesc": "Akun admin baru berhasil dibuat.",
+            "createFailed": "Gagal Membuat Admin",
+            "createFailedDesc": "Terjadi kesalahan saat membuat akun admin.",
+            "reviewSubmitted": "Tinjauan Dikirim",
+            "reviewSubmittedDesc": "Pengajuan telah {status}.",
+            "reviewFailed": "Tinjauan Gagal",
+            "reviewFailedDesc": "Terjadi kesalahan saat memperbarui pengajuan."
+        }
+    },
+    "NotFoundPage": {
+        "title": "Halaman Tidak Ditemukan",
+        "description": "Tidak dapat menemukan sumber daya yang diminta",
+        "home": "Kembali ke Beranda"
+    },
+    "PersonForm": {
+        "labels": {
+            "name": "Nama",
+            "wife": "Istri",
+            "father": "Ayah",
+            "birthOrder": "Urutan Lahir",
+            "description": "Deskripsi"
+        },
+        "placeholders": {
+            "selectFather": "Pilih ayah...",
+            "searchFather": "Cari ayah...",
+            "noFather": "Ayah tidak ditemukan."
+        },
+        "validation": {
+            "nameMin": "Nama harus minimal 2 karakter."
+        },
+        "titles": {
+            "edit": "Edit {name}",
+            "add": "Tambah Orang Baru",
+            "editDesc": "Ubah profil orang ini.",
+            "addChildDesc": "Menambahkan anak baru untuk generasi {generation}.",
+            "addRootDesc": "Tambah leluhur utama ke silsilah."
+        },
+        "buttons": {
+            "save": "Simpan Perubahan",
+            "cancel": "Batal"
+        },
+        "options": {
+            "root": "Tidak ada (Leluhur Utama)"
+        }
+    },
+    "AncestorSelector": {
+        "searchPlaceholder": "Cari leluhur berdasarkan nama atau generasi...",
+        "loading": "Memuat leluhur...",
+        "noResult": "Tidak ada leluhur yang cocok dengan pencarian Anda.",
+        "empty": "Tidak ada leluhur yang tersedia.",
+        "descendants": "{count} keturunan",
+        "marriedTo": "Menikah dengan {name}",
+        "buttons": {
+            "cancel": "Batal",
+            "create": "Buat Proposal",
+            "creating": "Membuat Proposal..."
+        },
+        "generations": {
+            "founder": "Pendiri",
+            "gen2": "Gen ke-2",
+            "gen3": "Gen ke-3",
+            "gen4": "Gen ke-4",
+            "genN": "Gen ke-{n}"
+        }
+    },
+    "AncestorProfile": {
+        "generation": "Generasi {gen}",
+        "startGeneration": "Mulai Generasi dari Sini",
+        "about": "Tentang",
+        "descDefault": "Informasi detail tentang {name} belum tersedia. Kontribusi dari anggota keluarga sangat diharapkan untuk memperkaya profil ini.",
+        "wife": "Istri",
+        "children": "Anak",
+        "noChildren": "Tidak ada anak yang tercatat.",
+        "close": "Tutup"
+    },
+    "CustomNode": {
+        "marriedTo": "Menikah dengan {name}",
+        "founder": "Pendiri",
+        "founderDesc": "Leluhur Pendiri",
+        "generation": "Generasi {gen}",
+        "highlightPath": "Sorot jalur ke leluhur",
+        "expand": "Tampilkan anak",
+        "collapse": "Sembunyikan anak"
+    },
+    "EditableNode": {
+        "wife": "Istri: {name}",
+        "noWife": "Tidak ada istri tercatat",
+        "generation": "Generasi {gen}",
+        "actions": {
+            "edit": "Edit Orang",
+            "addChild": "Tambah Anak",
+            "delete": "Hapus"
+        },
+        "alert": {
+            "title": "Apakah Anda yakin?",
+            "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus {name} dan semua keturunannya secara permanen.",
+            "cancel": "Batal",
+            "confirm": "Hapus"
+        }
+    }
+}

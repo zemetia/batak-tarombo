@@ -30,6 +30,7 @@ import { MoreHorizontal, Pencil, ShieldCheck, Trash2, UserPlus, CheckCircle, XCi
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 interface Admin {
   id: string;
@@ -90,6 +91,7 @@ export default function AdminPage() {
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations('AdminPage');
   
   const [newAdmin, setNewAdmin] = useState({
     name: '',
@@ -103,11 +105,11 @@ export default function AdminPage() {
   });
 
   const statusConfig = {
-    waiting: { icon: Clock, color: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30', label: 'Waiting' },
-    in_review: { icon: MessageSquare, color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30', label: 'In Review' },
-    accepted: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: 'Accepted' },
-    accepted_with_discuss: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: 'Accepted (with Discussion)' },
-    rejected: { icon: XCircle, color: 'bg-red-500/20 text-red-700 dark:text-red-500 border-red-500/30', label: 'Rejected' },
+    waiting: { icon: Clock, color: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30', label: t('status.waiting') },
+    in_review: { icon: MessageSquare, color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30', label: t('status.in_review') },
+    accepted: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: t('status.accepted') },
+    accepted_with_discuss: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: t('status.accepted_with_discuss') },
+    rejected: { icon: XCircle, color: 'bg-red-500/20 text-red-700 dark:text-red-500 border-red-500/30', label: t('status.rejected') },
   };
 
   useEffect(() => {
@@ -140,8 +142,8 @@ export default function AdminPage() {
     try {
       await createAdmin(newAdmin);
       toast({
-        title: "Admin Created",
-        description: "New admin account has been created successfully.",
+        title: t('toasts.adminCreated'),
+        description: t('toasts.adminCreatedDesc'),
       });
       setNewAdmin({ name: '', email: '', password: '' });
       setIsAddAdminOpen(false);
@@ -149,8 +151,8 @@ export default function AdminPage() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Failed to Create Admin",
-        description: "There was an error creating the admin account.",
+        title: t('toasts.createFailed'),
+        description: t('toasts.createFailedDesc'),
       });
     } finally {
       setIsLoading(false);
@@ -171,8 +173,8 @@ export default function AdminPage() {
       );
       
       toast({
-        title: "Review Submitted",
-        description: `Submission has been ${reviewData.status}.`,
+        title: t('toasts.reviewSubmitted'),
+        description: t('toasts.reviewSubmittedDesc', {status: reviewData.status}),
       });
       
       setReviewData({ status: '', adminNotes: '' });
@@ -182,8 +184,8 @@ export default function AdminPage() {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Review Failed",
-        description: "There was an error updating the submission.",
+        title: t('toasts.reviewFailed'),
+        description: t('toasts.reviewFailedDesc'),
       });
     } finally {
       setIsLoading(false);
@@ -208,17 +210,17 @@ export default function AdminPage() {
       <header className="mb-8">
         <h1 className="font-headline text-4xl font-bold flex items-center gap-3">
           <ShieldCheck className="w-10 h-10 text-primary" />
-          Admin Panel
+          {t('header.title')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Welcome, {user.name}. Manage users and lineage data submissions.
+          {t('header.welcome', {name: user.name})}
         </p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Admins</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('cards.admins')}</CardTitle>
             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -228,7 +230,7 @@ export default function AdminPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contributors</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('cards.contributors')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -238,7 +240,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Submissions</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('cards.pending')}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -250,7 +252,7 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('cards.total')}</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -261,9 +263,9 @@ export default function AdminPage() {
       
       <Tabs defaultValue="submissions">
         <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
-          <TabsTrigger value="submissions">Data Submissions</TabsTrigger>
-          <TabsTrigger value="contributors">Contributors</TabsTrigger>
-          <TabsTrigger value="admins">Admin Users</TabsTrigger>
+          <TabsTrigger value="submissions">{t('tabs.submissions')}</TabsTrigger>
+          <TabsTrigger value="contributors">{t('tabs.contributors')}</TabsTrigger>
+          <TabsTrigger value="admins">{t('tabs.admins')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="submissions" className="mt-6">
@@ -271,11 +273,11 @@ export default function AdminPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Ancestor Name</TableHead>
-                  <TableHead className="hidden lg:table-cell">Father's Name</TableHead>
-                  <TableHead className="hidden md:table-cell">Submitted By</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('table.ancestor')}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t('table.father')}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t('table.submittedBy')}</TableHead>
+                  <TableHead>{t('table.status')}</TableHead>
+                  <TableHead className="text-right">{t('table.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -312,7 +314,7 @@ export default function AdminPage() {
                             size="sm"
                             onClick={() => openReviewDialog(submission)}
                           >
-                            Review
+                            {t('buttons.review')}
                           </Button>
                         </TableCell>
                         </TableRow>
@@ -328,11 +330,11 @@ export default function AdminPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
-                  <TableHead className="hidden lg:table-cell">Location</TableHead>
-                  <TableHead className="hidden md:table-cell">Submissions</TableHead>
-                  <TableHead className="hidden lg:table-cell">Joined</TableHead>
+                  <TableHead>{t('table.name')}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t('table.email')}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t('table.location')}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t('table.submissions')}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t('table.joined')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -378,20 +380,20 @@ export default function AdminPage() {
                 <DialogTrigger asChild>
                   <Button>
                       <UserPlus className="mr-2 h-4 w-4" />
-                      Add Admin
+                      {t('buttons.addAdmin')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add New Admin</DialogTitle>
+                    <DialogTitle>{t('dialog.addAdmin.title')}</DialogTitle>
                     <DialogDescription>
-                      Create a new admin account with full system access.
+                      {t('dialog.addAdmin.desc')}
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleAddAdmin}>
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="admin-name">Full Name</Label>
+                        <Label htmlFor="admin-name">{t('dialog.addAdmin.fullName')}</Label>
                         <Input
                           id="admin-name"
                           value={newAdmin.name}
@@ -400,7 +402,7 @@ export default function AdminPage() {
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="admin-email">Email</Label>
+                        <Label htmlFor="admin-email">{t('dialog.addAdmin.email')}</Label>
                         <Input
                           id="admin-email"
                           type="email"
@@ -410,7 +412,7 @@ export default function AdminPage() {
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="admin-password">Password</Label>
+                        <Label htmlFor="admin-password">{t('dialog.addAdmin.password')}</Label>
                         <Input
                           id="admin-password"
                           type="password"
@@ -422,7 +424,7 @@ export default function AdminPage() {
                     </div>
                     <DialogFooter>
                       <Button type="submit" disabled={isLoading}>
-                        {isLoading ? 'Creating...' : 'Create Admin'}
+                        {isLoading ? t('buttons.creating') : t('buttons.createAdmin')}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -433,10 +435,10 @@ export default function AdminPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="hidden lg:table-cell">Created</TableHead>
+                  <TableHead>{t('table.name')}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t('table.email')}</TableHead>
+                  <TableHead>{t('table.role')}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t('table.created')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -465,9 +467,9 @@ export default function AdminPage() {
       <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Review Submission</DialogTitle>
+            <DialogTitle>{t('dialog.review.title')}</DialogTitle>
             <DialogDescription>
-              Review and update the status of this lineage submission.
+              {t('dialog.review.desc')}
             </DialogDescription>
           </DialogHeader>
           {selectedSubmission && (
@@ -475,16 +477,16 @@ export default function AdminPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Ancestor Name</Label>
+                    <Label>{t('dialog.review.ancestorName')}</Label>
                     <p className="text-sm font-medium">{selectedSubmission.ancestorName}</p>
                   </div>
                   <div>
-                    <Label>Father's Name</Label>
-                    <p className="text-sm font-medium">{selectedSubmission.fatherName || 'Not specified'}</p>
+                    <Label>{t('dialog.review.fatherName')}</Label>
+                    <p className="text-sm font-medium">{selectedSubmission.fatherName || t('dialog.review.notSpecified')}</p>
                   </div>
                 </div>
                 <div>
-                  <Label>Submitted By</Label>
+                  <Label>{t('dialog.review.submittedBy')}</Label>
                   <div className="text-sm">
                     <p className="font-medium">{selectedSubmission.submittedBy.fullName}</p>
                     <p className="text-muted-foreground">{selectedSubmission.submittedBy.email}</p>
@@ -497,11 +499,11 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <div>
-                  <Label>Changes Detail</Label>
+                  <Label>{t('dialog.review.changes')}</Label>
                   <p className="text-sm bg-muted p-3 rounded-md">{selectedSubmission.changesDetail}</p>
                 </div>
                 <div>
-                  <Label>Proof/Source</Label>
+                  <Label>{t('dialog.review.proof')}</Label>
                   <p className="text-sm">
                     <a href={selectedSubmission.taromboProve} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       {selectedSubmission.taromboProve}
@@ -509,25 +511,25 @@ export default function AdminPage() {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="review-status">Status</Label>
+                  <Label htmlFor="review-status">{t('dialog.review.status')}</Label>
                   <Select value={reviewData.status} onValueChange={(value) => setReviewData(prev => ({ ...prev, status: value }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder={t('status.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="waiting">Waiting</SelectItem>
-                      <SelectItem value="in_review">In Review</SelectItem>
-                      <SelectItem value="accepted">Accepted</SelectItem>
-                      <SelectItem value="accepted_with_discuss">Accepted (with Discussion)</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="waiting">{t('status.waiting')}</SelectItem>
+                      <SelectItem value="in_review">{t('status.in_review')}</SelectItem>
+                      <SelectItem value="accepted">{t('status.accepted')}</SelectItem>
+                      <SelectItem value="accepted_with_discuss">{t('status.accepted_with_discuss')}</SelectItem>
+                      <SelectItem value="rejected">{t('status.rejected')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="admin-notes">Admin Notes (Optional)</Label>
+                  <Label htmlFor="admin-notes">{t('dialog.review.notes')}</Label>
                   <Textarea
                     id="admin-notes"
-                    placeholder="Add notes or feedback for the contributor..."
+                    placeholder={t('dialog.review.notesPlaceholder')}
                     value={reviewData.adminNotes}
                     onChange={(e) => setReviewData(prev => ({ ...prev, adminNotes: e.target.value }))}
                   />
@@ -535,7 +537,7 @@ export default function AdminPage() {
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={isLoading}>
-                  {isLoading ? 'Updating...' : 'Update Status'}
+                  {isLoading ? t('buttons.updating') : t('buttons.updateStatus')}
                 </Button>
               </DialogFooter>
             </form>

@@ -1,6 +1,9 @@
 'use client';
 
+import { useTranslations } from "next-intl";
+
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -27,6 +30,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const t = useTranslations('LoginPage');
 
   const handleContributorSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +39,8 @@ export default function LoginPage() {
       const contributor = await login(contributorEmail, contributorPassword);
       if (contributor) {
         toast({
-          title: "Login Successful",
-          description: `Welcome back, ${contributor.fullName}!`,
+          title: t('toast.successTitle'),
+          description: t('toast.successDesc', {name: contributor.fullName}),
         });
         localStorage.setItem('user', JSON.stringify({ 
           id: contributor.id, 
@@ -48,15 +52,15 @@ export default function LoginPage() {
       } else {
         toast({
           variant: "destructive",
-          title: "Login Failed",
-          description: "Invalid email or password.",
+          title: t('toast.failTitle'),
+          description: t('toast.failDesc'),
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "An error occurred",
-        description: "Something went wrong. Please try again.",
+        title: t('toast.errorTitle'),
+        description: t('toast.errorDesc'),
       });
     } finally {
       setIsLoading(false);
@@ -70,8 +74,8 @@ export default function LoginPage() {
       const admin = await adminLogin(adminEmail, adminPassword);
       if (admin) {
         toast({
-          title: "Admin Login Successful",
-          description: `Welcome back, ${admin.name}!`,
+          title: t('toast.successTitle'),
+          description: t('toast.successDesc', {name: admin.name}),
         });
         localStorage.setItem('user', JSON.stringify({ 
           id: admin.id, 
@@ -83,15 +87,15 @@ export default function LoginPage() {
       } else {
         toast({
           variant: "destructive",
-          title: "Login Failed",
-          description: "Invalid admin credentials.",
+          title: t('toast.failTitle'),
+          description: t('toast.failDesc'),
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "An error occurred",
-        description: "Something went wrong. Please try again.",
+        title: t('toast.errorTitle'),
+        description: t('toast.errorDesc'),
       });
     } finally {
       setIsLoading(false);
@@ -102,9 +106,12 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
       <Card className="mx-auto max-w-md w-full">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-headline">Login</CardTitle>
+          <div className="flex justify-center mb-4">
+            <Image src="/images/icons/logo_tarombo_batak.png" alt="Tarombo Batak Logo" width={64} height={64} className="h-16 w-16" />
+          </div>
+          <CardTitle className="text-2xl font-headline">{t('title')}</CardTitle>
           <CardDescription>
-            Choose your account type and login below
+            {t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -112,11 +119,11 @@ export default function LoginPage() {
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="contributor" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                Contributor
+                {t('contributor')}
               </TabsTrigger>
               <TabsTrigger value="admin" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
-                Admin
+                {t('admin')}
               </TabsTrigger>
             </TabsList>
             
@@ -124,18 +131,18 @@ export default function LoginPage() {
               <form onSubmit={handleContributorSubmit}>
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="contributor-email">Email</Label>
+                    <Label htmlFor="contributor-email">{t('email')}</Label>
                     <Input
                       id="contributor-email"
                       type="email"
-                      placeholder="contributor@example.com"
+                      placeholder={t('placeholderEmail')}
                       required
                       value={contributorEmail}
                       onChange={(e) => setContributorEmail(e.target.value)}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="contributor-password">Password</Label>
+                    <Label htmlFor="contributor-password">{t('password')}</Label>
                     <Input 
                       id="contributor-password" 
                       type="password" 
@@ -145,14 +152,14 @@ export default function LoginPage() {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Logging in...' : 'Login as Contributor'}
+                    {isLoading ? t('loading') : t('submitContributor')}
                   </Button>
                 </div>
               </form>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
+                {t('noAccount')}{" "}
                 <Link href="/signup" className="underline">
-                  Sign up
+                  {t('signup')}
                 </Link>
               </div>
             </TabsContent>
@@ -161,18 +168,18 @@ export default function LoginPage() {
               <form onSubmit={handleAdminSubmit}>
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="admin-email">Email</Label>
+                    <Label htmlFor="admin-email">{t('email')}</Label>
                     <Input
                       id="admin-email"
                       type="email"
-                      placeholder="admin@example.com"
+                      placeholder={t('placeholderEmail')}
                       required
                       value={adminEmail}
                       onChange={(e) => setAdminEmail(e.target.value)}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="admin-password">Password</Label>
+                    <Label htmlFor="admin-password">{t('password')}</Label>
                     <Input 
                       id="admin-password" 
                       type="password" 
@@ -182,7 +189,7 @@ export default function LoginPage() {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Logging in...' : 'Login as Admin'}
+                    {isLoading ? t('loading') : t('submitAdmin')}
                   </Button>
                 </div>
               </form>

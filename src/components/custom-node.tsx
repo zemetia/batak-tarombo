@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { MinusSquare, PlusSquare, Zap, Crown } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 interface CustomNodeData {
     label: string;
@@ -24,6 +25,7 @@ interface CustomNodeData {
 }
 
 export const CustomNode = React.memo(({ data, id }: NodeProps<CustomNodeData>) => {
+  const t = useTranslations('CustomNode');
   const hasWife = data.rawAncestor.wife && data.rawAncestor.wife.trim() !== '';
   const isFounder = data.generation === 1;
   
@@ -86,7 +88,7 @@ export const CustomNode = React.memo(({ data, id }: NodeProps<CustomNodeData>) =
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Married to {data.rawAncestor.wife}</p>
+                    <p>{t('marriedTo', {name: data.rawAncestor.wife})}</p>
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -98,14 +100,14 @@ export const CustomNode = React.memo(({ data, id }: NodeProps<CustomNodeData>) =
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Founding ancestor</p>
+                    <p>{t('founderDesc')}</p>
                   </TooltipContent>
                 </Tooltip>
               )}
             </div>
             {data.generation && (
               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                Generation {data.generation}
+                {t('generation', {gen: data.generation})}
                 {data.isHighlighted && <Zap className="w-3 h-3 text-primary animate-pulse" />}
               </p>
             )}
@@ -128,7 +130,7 @@ export const CustomNode = React.memo(({ data, id }: NodeProps<CustomNodeData>) =
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Highlight path to root</p>
+              <p>{t('highlightPath')}</p>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -154,7 +156,7 @@ export const CustomNode = React.memo(({ data, id }: NodeProps<CustomNodeData>) =
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{data.isCollapsed ? 'Expand children' : 'Collapse children'}</p>
+                <p>{data.isCollapsed ? t('expand') : t('collapse')}</p>
               </TooltipContent>
             </Tooltip>
         )}

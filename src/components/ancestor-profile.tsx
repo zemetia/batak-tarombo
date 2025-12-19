@@ -15,6 +15,7 @@ import { User, Users, PlayCircle, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
+import { useTranslations } from 'next-intl';
 
 interface AncestorProfileProps {
   ancestor: Ancestor | null;
@@ -29,6 +30,7 @@ export function AncestorProfile({
   onOpenChange,
   onStartGenerationFrom,
 }: AncestorProfileProps) {
+  const t = useTranslations('AncestorProfile');
   if (!ancestor) return null;
 
   const handleStartGeneration = () => {
@@ -63,7 +65,7 @@ export function AncestorProfile({
               <div className="pb-2">
                 <SheetTitle className="text-3xl font-headline">{ancestor.name}</SheetTitle>
                 <SheetDescription>
-                  {ancestor.generation && `Generation ${ancestor.generation}`}
+                  {ancestor.generation && t('generation', {gen: ancestor.generation})}
                 </SheetDescription>
               </div>
             </SheetHeader>
@@ -72,7 +74,7 @@ export function AncestorProfile({
           <div className="p-6 space-y-6">
               <Button onClick={handleStartGeneration} className="w-full">
                 <PlayCircle className="mr-2 h-4 w-4" />
-                Start Generation from Here
+                {t('startGeneration')}
               </Button>
 
               <Separator />
@@ -80,10 +82,10 @@ export function AncestorProfile({
               <div>
                 <h3 className="text-lg font-semibold font-headline mb-3 flex items-center">
                   <User className="w-5 h-5 mr-3 text-primary" />
-                  About
+                  {t('about')}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                    Detailed information about {ancestor.name} is not yet available. Contributions from family members are welcome to enrich this profile. You can add more details, stories, and historical context.
+                    {t('descDefault', {name: ancestor.name})}
                 </p>
               </div>
 
@@ -93,7 +95,7 @@ export function AncestorProfile({
                   <div>
                     <h3 className="text-lg font-semibold font-headline mb-3 flex items-center">
                       <Heart className="w-5 h-5 mr-3 text-primary" />
-                      Wife
+                      {t('wife')}
                     </h3>
                     <p className="text-muted-foreground text-sm">{ancestor.wife}</p>
                   </div>
@@ -105,7 +107,7 @@ export function AncestorProfile({
               <div>
                 <h3 className="text-lg font-semibold font-headline mb-3 flex items-center">
                   <Users className="w-5 h-5 mr-3 text-primary" />
-                  Children
+                  {t('children')}
                 </h3>
                 {ancestor.children && ancestor.children.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -122,13 +124,13 @@ export function AncestorProfile({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No recorded children.</p>
+                  <p className="text-muted-foreground text-sm">{t('noChildren')}</p>
                 )}
               </div>
           </div>
         </ScrollArea>
         <SheetFooter className="p-4 border-t bg-background">
-          <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>Close</Button>
+          <Button variant="outline" className="w-full" onClick={() => onOpenChange(false)}>{t('close')}</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

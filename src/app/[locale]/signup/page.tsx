@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,6 +22,7 @@ import { registerContributor } from "@/lib/actions"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
+import { useTranslations } from "next-intl"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -39,6 +41,7 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const t = useTranslations('SignupPage');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -62,8 +65,8 @@ export default function SignupPage() {
       const newContributor = await registerContributor(contributorData);
       
       toast({
-        title: "Registration Successful",
-        description: `Welcome, ${newContributor.fullName}! Your account has been created.`,
+        title: t('toasts.success'),
+        description: t('toasts.successDesc', {name: newContributor.fullName}),
       });
       
       localStorage.setItem('user', JSON.stringify({ 
@@ -78,8 +81,8 @@ export default function SignupPage() {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Registration Failed",
-        description: "An account with this email may already exist.",
+        title: t('toasts.failed'),
+        description: t('toasts.failedDesc'),
       });
     } finally {
       setIsLoading(false);
@@ -90,25 +93,25 @@ export default function SignupPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-background py-12">
       <Card className="mx-auto max-w-2xl w-full">
         <CardHeader className="text-center">
-          <div className="inline-block bg-primary/10 p-3 rounded-full mx-auto mb-4">
-            <Users className="h-8 w-8 text-primary" />
+          <div className="flex justify-center mb-4">
+            <Image src="/images/icons/logo_tarombo_batak.png" alt="Tarombo Batak Logo" width={64} height={64} className="h-16 w-16" />
           </div>
-          <CardTitle className="text-2xl font-headline">Contributor Registration</CardTitle>
+          <CardTitle className="text-2xl font-headline">{t('title')}</CardTitle>
           <CardDescription>
-            Create an account to start contributing to the lineage.
+            {t('description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" placeholder="Enter your full name" required value={formData.fullName} onChange={handleInputChange} />
+                <Label htmlFor="fullName">{t('labels.fullName')}</Label>
+                <Input id="fullName" placeholder={t('placeholders.fullName')} required value={formData.fullName} onChange={handleInputChange} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div className="grid gap-2">
-                      <Label htmlFor="birthday">Birthday</Label>
+                      <Label htmlFor="birthday">{t('labels.birthday')}</Label>
                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                           <PopoverTrigger asChild>
                           <Button
@@ -119,7 +122,7 @@ export default function SignupPage() {
                               )}
                           >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {formData.birthday ? format(formData.birthday, "PPP") : <span>Pick a date</span>}
+                              {formData.birthday ? format(formData.birthday, "PPP") : <span>{t('labels.pickDate')}</span>}
                           </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
@@ -135,61 +138,61 @@ export default function SignupPage() {
                       </Popover>
                   </div>
                    <div className="grid gap-2">
-                      <Label htmlFor="whatsapp">WhatsApp Number</Label>
-                      <Input id="whatsapp" type="tel" placeholder="+62 123 4567 890" value={formData.whatsapp} onChange={handleInputChange} />
+                      <Label htmlFor="whatsapp">{t('labels.whatsapp')}</Label>
+                      <Input id="whatsapp" type="tel" placeholder={t('placeholders.whatsapp')} value={formData.whatsapp} onChange={handleInputChange} />
                   </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="address">Address</Label>
-                <Textarea id="address" placeholder="Enter your full address" value={formData.address} onChange={handleInputChange} />
+                <Label htmlFor="address">{t('labels.address')}</Label>
+                <Textarea id="address" placeholder={t('placeholders.address')} value={formData.address} onChange={handleInputChange} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" placeholder="e.g. Jakarta" value={formData.city} onChange={handleInputChange}/>
+                  <Label htmlFor="city">{t('labels.city')}</Label>
+                  <Input id="city" placeholder={t('placeholders.city')} value={formData.city} onChange={handleInputChange}/>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="country">Country</Label>
-                  <Input id="country" placeholder="e.g. Indonesia" value={formData.country} onChange={handleInputChange}/>
+                  <Label htmlFor="country">{t('labels.country')}</Label>
+                  <Input id="country" placeholder={t('placeholders.country')} value={formData.country} onChange={handleInputChange}/>
                 </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="grid gap-2">
-                  <Label htmlFor="facebook">Facebook (Optional)</Label>
+                  <Label htmlFor="facebook">{t('labels.facebook')}</Label>
                   <Input id="facebook" placeholder="facebook.com/username" value={formData.facebook} onChange={handleInputChange} />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="instagram">Instagram (Optional)</Label>
+                  <Label htmlFor="instagram">{t('labels.instagram')}</Label>
                   <Input id="instagram" placeholder="@username" value={formData.instagram} onChange={handleInputChange}/>
                 </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('labels.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder={t('placeholders.email')}
                   required
                   value={formData.email} onChange={handleInputChange}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('labels.password')}</Label>
                 <Input id="password" type="password" required value={formData.password} onChange={handleInputChange}/>
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create an account'}
+                {isLoading ? t('buttons.creating') : t('buttons.create')}
               </Button>
             </div>
           </form>
           <div className="mt-6 text-center text-sm">
-            Already have an account?{" "}
+            {t('haveAccount')}{" "}
             <Link href="/login" className="underline">
-              Login
+              {t('login')}
             </Link>
           </div>
         </CardContent>

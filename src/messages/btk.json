@@ -1,0 +1,454 @@
+{
+    "HomePage": {
+        "title": "Partuturan Batak",
+        "searchPlaceholder": "Lului ompu...",
+        "noData": "Dang adong data partuturan",
+        "loading": "Paimahon data...",
+        "generations": "Sundut",
+        "people": "Jolma",
+        "filterByGeneration": "Saring marhite sundut",
+        "recentSearches": "Na baru dilului",
+        "gen": "Sundut",
+        "married": "Hot Ripe",
+        "wife": "Pardihuta"
+    },
+    "Layout": {
+        "title": "Partuturan Batak",
+        "description": "Lului jala tambai partuturan Batak."
+    },
+    "Header": {
+        "nav": {
+            "home": "Halaman Muka",
+            "about": "Taringot",
+            "contribute": "Manumpak",
+            "donation": "Tumpak",
+            "admin": "Panel Admin"
+        },
+        "guest": {
+            "name": "Tamue",
+            "email": "tamue@conth.com",
+            "login": "Masuk",
+            "signup": "Daftar"
+        },
+        "switchLanguage": "Ganti Bahasa"
+    },
+    "LoginPage": {
+        "title": "Masuk",
+        "description": "Pillit jenis akunmu jala masuk di toru",
+        "contributor": "Kontributor",
+        "admin": "Admin",
+        "email": "Email",
+        "password": "Sandi",
+        "placeholderEmail": "kontributor@contoh.com",
+        "submitContributor": "Masuk songon Kontributor",
+        "submitAdmin": "Masuk songon Admin",
+        "loading": "Masuk...",
+        "noAccount": "Ndang adong akun?",
+        "signup": "Daftar",
+        "toast": {
+            "successTitle": "Masuk Berhasil",
+            "successDesc": "Horas, {name}!",
+            "failTitle": "Masuk Gagal",
+            "failDesc": "Email manang sandi sala.",
+            "errorTitle": "Adong na sala",
+            "errorDesc": "Adong na sala. Coba ulaki muse."
+        }
+    },
+    "SignupPage": {
+        "title": "Pendaftaran Kontributor",
+        "description": "Pauli akun laho manumpak tu silsilah.",
+        "labels": {
+            "fullName": "Goar Lengkap",
+            "birthday": "Ari Hatutubu",
+            "pickDate": "Pillit tanggal",
+            "whatsapp": "Nomor WhatsApp",
+            "address": "Alamat",
+            "city": "Huta/Kota",
+            "country": "Negara",
+            "facebook": "Facebook (Opsional)",
+            "instagram": "Instagram (Opsional)",
+            "email": "Email",
+            "password": "Sandi"
+        },
+        "placeholders": {
+            "fullName": "Surat goar lengkapmu",
+            "whatsapp": "+62 123 4567 890",
+            "address": "Surat alamat lengkapmu",
+            "city": "contoh: Medan",
+            "country": "contoh: Indonesia",
+            "email": "m@contoh.com"
+        },
+        "buttons": {
+            "create": "Pauli Akun",
+            "creating": "Mambahen akun..."
+        },
+        "haveAccount": "Nunga adong akun?",
+        "login": "Masuk",
+        "toasts": {
+            "success": "Pendaftaran Berhasil",
+            "successDesc": "Horas, {name}! Akunmu nunga dipauli.",
+            "failed": "Pendaftaran Gagal",
+            "failedDesc": "Akun dohot email on ra nunga adong."
+        }
+    },
+    "AboutPage": {
+        "title": "Martarombo: Mangalului Bona Ni Pinasa",
+        "subtitle": "Parjalangan tu huta ni halak Batak, mangida borngin ni adat dohot partuturan na hot.",
+        "sections": {
+            "one": {
+                "title": "Ise do Halak Batak?",
+                "content1": "Halak Batak i ma bangso na bolon sian Tano Batak, humaliang Tao Toba. Marragam do sub-suku, alai sada do hita di bagasan <bold>Adat</bold> dohot partuturan. Rap marbudaya, rap marbahasa, jala rap maradat.",
+                "content2": "Sian ukiran <bold>Gorga</bold> na uli sahat tu <bold>Jabu Bolon</bold> na balga, tarida do gogo dohot bisuk ni ompunta. Alai dang holan batu manang hau monumen na umbalga, i ma goar ni angka ompu na tarsurat di tarombo."
+            },
+            "two": {
+                "title": "Dalihan Na Tolu: Tolu Tungku",
+                "content1": "Ngolu ni halak Batak marojahan tu <bold>Dalihan Na Tolu</bold>. Tolu tungku i ma: <bold>Hula-hula</bold>, <bold>Boru</bold>, dohot <bold>Dongan Tubu</bold>.",
+                "content2": "Adat on mangajarhon: <bold>Somba marhula-hula</bold>, <bold>Elek marboru</bold>, jala <bold>Manat mardongan tubu</bold>. I do na gabe kompas di parngoluon siapari."
+            },
+            "three": {
+                "title": "Tarombo: Pustaha na Badia",
+                "content1": "<bold>Tarombo</bold> ndang holan silsilah; i do buku sejarah dohot tanda pengenaalta. Tarombo patuduhon dalan mulak tu <bold>Si Raja Batak</bold>. Molo diboto ho tarombom, diboto ho ma ise do ho di portibi on.",
+                "content2": "Molo na jolo, diingot do tarombo manang digambar di harotas na disimpan keluarga. Saonari, godang do na disimpan songon foto manang file digital na sederhana, alai tong do pasahathon hita tu bona ni pinasa."
+            },
+            "four": {
+                "title": "Tahi Nami",
+                "cards": {
+                    "batak": {
+                        "title": "Mangaramoti Identitas",
+                        "desc": "Asa sude pinompar ni Batak, manang di dia pe tubu,  boi mananda bona ni pinasana jala mangantusi Dalihan Na Tolu."
+                    },
+                    "indonesia": {
+                        "title": "Mampabagak Warisan",
+                        "desc": "Manambahon arsip na kusus tu budaya Indonesia, patuduhon bagas ni adat dohot partuturan ni Nusantara."
+                    },
+                    "world": {
+                        "title": "Arsip Global",
+                        "desc": "Mangalehon tu portibi on sada contoh sistem kekerabatan na pistar jala na hot diaramoti."
+                    }
+                }
+            },
+            "five": {
+                "title": "Martarombo: Mulak tu Huta",
+                "content": "Ninna umpasa: <bold>\"Jolo tinittip sanggar, laho bahen huru-huan. Jolo sinungkun marga, asa binoto partuturan.\"</bold> Ro ma hamu, rap ma hita paturehon tarombo ni bangso Batak.",
+                "button": "Mulai Manumpak"
+            }
+        }
+    },
+    "ContributePage": {
+        "header": {
+            "title": "Manjujung Baringin",
+            "subtitle": "Togu uratna, bagak bulungna. Parbinotoanmuna pagogohon adat dohot budaya ni hita halak Batak."
+        },
+        "why": {
+            "title": "Arga do Ganup Goar",
+            "p1": "Songon <bold>Hariara</bold> na gabe parlinggoman, Tarombo mangaramoti identitasta. Molo ago goar, hira dangka na maponggol ma i.",
+            "p2": "Molo disurat ho goar ni ompu, natoras, dohot ianakhon, dilehon ho ma inganan na hormat di sejarah. Ndang holan manurat data ho, alai na mangulahon 'luhutan' do ho tu ompu."
+        },
+        "how": {
+            "title": "Dalan Manumpak",
+            "subtitle": "Adong opat langka na mura laho mangurupi.",
+            "steps": {
+                "one": {
+                    "title": "Masuk tu Punguan",
+                    "desc": "Pauli akun kontributor asa boi ho mulai."
+                },
+                "two": {
+                    "title": "Bagihon Parbinotoan",
+                    "desc": "Bagihon ma diagram tarombo manang sungkun ma tu Punguan Marga / Raja Adat asa sintong parbinotoan i."
+                },
+                "three": {
+                    "title": "Ditingkir Punguan",
+                    "desc": "Admin dohot angka natua-tua maningkir data asa sintong Tarombo i."
+                },
+                "four": {
+                    "title": "Hot Salelengna",
+                    "desc": "Ida ma tarombo i lam balga, manghatahon partuturan ni sude keluarga."
+                }
+            }
+        },
+        "cta": {
+            "title": "Nunga Rade Ho?",
+            "text": "Unang ma mago turiturian i. Buat ma pustaha, telepon ma ompung, jala urupi hami manurat bisuk ni ompunta di zaman digital on.",
+            "createAccount": "Gabe Kontributor",
+            "signIn": "Masuk laho Manumpak"
+        }
+    },
+    "DonationPage": {
+        "title": "Siurupan: Masiaji-ajian",
+        "description": "Urupi hami mangaramoti budaya Batak di zaman digital.",
+        "content": {
+            "p1": "Di hita halak Batak, <bold>Siurupan</bold> lapatanna mangurupi dongan laho denggan ni na torop. Proyek on diurus angka sukarelawan na ringgas rohana mangaramoti sejarah.",
+            "p2": "Tumpakmuna mangurupi biaya server, mambahen fitur na baru, dohot riset laho maningkir tarombo ni angka ompu naung leleng.",
+            "p3": "Urupi hami asa hot jongjong Jabu Bolon digital on di angka sundut na naeng ro. Mauliate godang!"
+        },
+        "button": "Lehon Tumpak"
+    },
+    "ContributorPage": {
+        "header": {
+            "welcome": "Horas, {name}",
+            "desc": "Atur tumpakmu jala ajuhon perubahan tu tarombo."
+        },
+        "activeProposal": {
+            "title": "Proposal Aktif",
+            "desc": "Adong proposalmu na aktif tu <bold>{ancestorName}</bold>",
+            "continue": "Terus Edit",
+            "cancel": "Batalkan Proposal",
+            "exists": "Adong Proposal Aktif",
+            "existsDesc": "Batalkan jolo proposal na saonari asa boi mambahen na baru."
+        },
+        "newProposal": {
+            "title": "Bahen Proposal Baru",
+            "desc": "Pillit ompu laho mengedit pinomparna.",
+            "start": "Mulai Proposal Baru"
+        },
+        "yourProposals": {
+            "title": "Proposalmu",
+            "desc": "Ida status ni proposal na dikirim.",
+            "empty": "Ndang adong proposal dikirim dope."
+        },
+        "table": {
+            "ancestor": "Ompu",
+            "father": "Ama",
+            "status": "Status",
+            "submitted": "Dikirim",
+            "note": "Catatan: {note}"
+        },
+        "dialog": {
+            "selectTitle": "Pillit Ompu tu Proposal",
+            "selectDesc": "Pillit ompu manang ise pinompar ni ise na naeng diedit. Holan pinompar ni ompu na dipillit na boi diedit.",
+            "createTitle": "Detail Proposal",
+            "createDesc": "Paboa detail perubahan tu pinompar ni <bold>{name}</bold>.",
+            "ancestorLabel": "Ompu na Dipillit",
+            "changesLabel": "Detail Perubahan *",
+            "changesPlaceholder": "Surat perubahan manang informasi na baru...",
+            "proofLabel": "Bukti/Sumber URL *",
+            "proofPlaceholder": "Link tu dokumen silsilah manang sumber",
+            "submit": "Bahen Proposal",
+            "submitting": "Mengirim..."
+        },
+        "toasts": {
+            "cancelled": "Proposal Dibatalkan",
+            "cancelledDesc": "Proposalmu nunga dibatalkan.",
+            "created": "Proposal Dibahen",
+            "createdDesc": "Proposalmu nunga dibahen. Boi ma ho mengedit silsilah."
+        },
+        "status": {
+            "waiting": "Paimahon",
+            "in_review": "Ditingkir",
+            "accepted": "Dioloi",
+            "accepted_with_discuss": "Dioloi (dohot Diskusi)",
+            "rejected": "Ditolak",
+            "cancelled": "Dibatalkan"
+        }
+    },
+    "EditTreePage": {
+        "header": {
+            "editProposal": "Edit Proposal: {name}",
+            "editTree": "Edit Silsilah",
+            "proposalMode": "Mode Proposal",
+            "addRoot": "Tambah Ompu Mula"
+        },
+        "stats": {
+            "people": "{count} nama",
+            "generations": "{count} sundut",
+            "new": "{count} baru",
+            "edited": "{count} diubah"
+        },
+        "tabs": {
+            "tree": "Tampilan Hau",
+            "history": "Riwayat ({count})",
+            "settings": "Pengaturan"
+        },
+        "controls": {
+            "visible": "{count} tarida",
+            "expandAll": "Buka sude",
+            "collapseAll": "Tutup sude"
+        },
+        "history": {
+            "recent": "Perubahan Terakhir",
+            "empty": "Ndang adong perubahan dope. Mulai ma mengedit."
+        },
+        "settings": {
+            "display": "Pilihan Tampilan",
+            "minimap": "Tampilkan peta mini",
+            "background": "Tampilkan latar",
+            "enabled": "Aktif",
+            "disabled": "Matip",
+            "statistics": "Statistik",
+            "totalPeople": "Total Nama",
+            "totalGenerations": "Sundut",
+            "newAdditions": "Tambahan Baru",
+            "modified": "Diubah"
+        }
+    },
+    "AdminPage": {
+        "header": {
+            "title": "Panel Admin",
+            "welcome": "Horas, {name}. Atur ma pengguna dohot data silsilah na masuk."
+        },
+        "cards": {
+            "admins": "Total Admin",
+            "contributors": "Kontributor",
+            "pending": "Submisi Paimahon",
+            "total": "Total Submisi"
+        },
+        "tabs": {
+            "submissions": "Data Submisi",
+            "contributors": "Kontributor",
+            "admins": "Pengguna Admin"
+        },
+        "table": {
+            "ancestor": "Goar Ompu",
+            "father": "Goar Ama",
+            "submittedBy": "Dikirim",
+            "status": "Status",
+            "actions": "Aksi",
+            "name": "Goar",
+            "email": "Email",
+            "location": "Inganan",
+            "submissions": "Submisi",
+            "joined": "Bergabung",
+            "role": "Peran",
+            "created": "Dibahen"
+        },
+        "status": {
+            "waiting": "Paimahon",
+            "in_review": "Ditingkir",
+            "accepted": "Dioloi",
+            "accepted_with_discuss": "Dioloi (dohot Diskusi)",
+            "rejected": "Ditolak",
+            "placeholder": "Pillit status"
+        },
+        "buttons": {
+            "review": "Tingkir",
+            "addAdmin": "Tambah Admin",
+            "updateStatus": "Ganti Status",
+            "updating": "Paggantihon...",
+            "createAdmin": "Pauli Admin",
+            "creating": "Mambahen..."
+        },
+        "dialog": {
+            "addAdmin": {
+                "title": "Tambah Admin Baru",
+                "desc": "Pauli akun admin na baru.",
+                "fullName": "Goar Lengkap",
+                "email": "Email",
+                "password": "Sandi"
+            },
+            "review": {
+                "title": "Tingkir Submisi",
+                "desc": "Tingkir jala ganti status ni submisi silsilah on.",
+                "ancestorName": "Goar Ompu",
+                "fatherName": "Goar Ama",
+                "submittedBy": "Dikirim",
+                "notSpecified": "Ndang dipaboa",
+                "changes": "Detail Perubahan",
+                "proof": "Bukti/Sumber",
+                "status": "Status",
+                "notes": "Catatan Admin (Opsional)",
+                "notesPlaceholder": "Tambah catatan manang sipaingot tu kontributor..."
+            }
+        },
+        "toasts": {
+            "adminCreated": "Admin Dipauli",
+            "adminCreatedDesc": "Akun admin na baru nunga berhasil dipauli.",
+            "createFailed": "Gagal Mambahen Admin",
+            "createFailedDesc": "Adong na sala tingki mambahen akun admin.",
+            "reviewSubmitted": "Review Dikirim",
+            "reviewSubmittedDesc": "Submisi nunga {status}.",
+            "reviewFailed": "Review Gagal",
+            "reviewFailedDesc": "Adong na sala tingki mangganti submisi."
+        }
+    },
+    "NotFoundPage": {
+        "title": "Halaman Ndang Jumpang",
+        "description": "Ndang dapothon halaman na dilului.",
+        "home": "Mulak tu Muka"
+    },
+    "PersonForm": {
+        "labels": {
+            "name": "Goar",
+            "wife": "Pardihuta",
+            "father": "Ama",
+            "birthOrder": "Urutan Tubu",
+            "description": "Keterangan"
+        },
+        "placeholders": {
+            "selectFather": "Pillit ama...",
+            "searchFather": "Lului ama...",
+            "noFather": "Ndang jumpang ama."
+        },
+        "validation": {
+            "nameMin": "Goar ingkon lobi sian 2 huruf."
+        },
+        "titles": {
+            "edit": "Edit {name}",
+            "add": "Tambah Halak Baru",
+            "editDesc": "Ubah profil ni halak on.",
+            "addChildDesc": "Manamba dakdanak tu sundut {generation}.",
+            "addRootDesc": "Tambah ompu mula tu silsilah."
+        },
+        "buttons": {
+            "save": "Simpan",
+            "cancel": "Batal"
+        },
+        "options": {
+            "root": "Ndang adong (Ompu Mula)"
+        }
+    },
+    "AncestorSelector": {
+        "searchPlaceholder": "Lului ompu manang sundut...",
+        "loading": "Paimahon ompu...",
+        "noResult": "Ndang jumpang ompu na dilului.",
+        "empty": "Ndang adong data ompu.",
+        "descendants": "{count} pinompar",
+        "marriedTo": "Hot ripe tu {name}",
+        "buttons": {
+            "cancel": "Batal",
+            "create": "Bahen Proposal",
+            "creating": "Mambahen Proposal..."
+        },
+        "generations": {
+            "founder": "Mula",
+            "gen2": "Sundut 2",
+            "gen3": "Sundut 3",
+            "gen4": "Sundut 4",
+            "genN": "Sundut {n}"
+        }
+    },
+    "AncestorProfile": {
+        "generation": "Sundut {gen}",
+        "startGeneration": "Mulai sian Ompu On",
+        "about": "Taringot",
+        "descDefault": "Imbuhan taringot tu {name} ndang dope adong. Dianggarhon do tumpak sian keluarga laho paugahon profil on.",
+        "wife": "Pardihuta",
+        "children": "Ianakhon",
+        "noChildren": "Ndang adong ianakhon disurat.",
+        "close": "Tutup"
+    },
+    "CustomNode": {
+        "marriedTo": "Hot ripe tu {name}",
+        "founder": "Mula",
+        "founderDesc": "Ompu Mula",
+        "generation": "Sundut {gen}",
+        "highlightPath": "Patarida dalan tu mula",
+        "expand": "Pabidang pinompar",
+        "collapse": "Orom pinompar"
+    },
+    "EditableNode": {
+        "wife": "Pardihuta: {name}",
+        "noWife": "Ndang adong pardihuta",
+        "generation": "Sundut {gen}",
+        "actions": {
+            "edit": "Ubah Data",
+            "addChild": "Tambah Ianakhon",
+            "delete": "Hapus"
+        },
+        "alert": {
+            "title": "Pos do roham?",
+            "description": "Ndang boi diulaki on. Hapusonna ma {name} dohot sude pinomparna.",
+            "cancel": "Batal",
+            "confirm": "Hapus"
+        }
+    }
+}

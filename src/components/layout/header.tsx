@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import {
   Users,
   Home,
@@ -10,7 +9,9 @@ import {
   LogIn,
   Heart,
   Info,
+  Globe,
 } from 'lucide-react';
+import Image from 'next/image';
 
 import {
   DropdownMenu,
@@ -29,14 +30,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname, useRouter } from '@/i18n/routing';
+import { useLocale, useTranslations } from 'next-intl';
 
-const navLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/about', label: 'About', icon: Info },
-  { href: '/contribute', label: 'Contribute', icon: FilePlus },
-  { href: '/donation', label: 'Donation', icon: Heart },
-  { href: '/admin', label: 'Admin Panel', icon: ShieldCheck },
+const navLinksData = [
+  { href: '/', labelKey: 'nav.home', icon: Home },
+  { href: '/about', labelKey: 'nav.about', icon: Info },
+  { href: '/contribute', labelKey: 'nav.contribute', icon: FilePlus },
+  { href: '/donation', labelKey: 'nav.donation', icon: Heart },
+  { href: '/admin', labelKey: 'nav.admin', icon: ShieldCheck },
 ];
 
 const NavLink = ({
@@ -71,6 +73,20 @@ const NavLink = ({
 };
 
 export function Header() {
+  const t = useTranslations('Header');
+  const pathname = usePathname();
+  const router = useRouter();
+  const currentLocale = useLocale();
+
+  const navLinks = navLinksData.map(link => ({
+    ...link,
+    label: t(link.labelKey)
+  }));
+
+  const handleLanguageChange = (locale: string) => {
+    router.replace(pathname, { locale });
+  };
+
   const UserMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -86,9 +102,9 @@ export function Header() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Guest</p>
+            <p className="text-sm font-medium leading-none">{t('guest.name')}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              guest@example.com
+              {t('guest.email')}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -96,14 +112,36 @@ export function Header() {
         <DropdownMenuItem asChild>
           <Link href="/login">
             <LogIn className="mr-2 h-4 w-4" />
-            <span>Login</span>
+            <span>{t('guest.login')}</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/signup">
             <Users className="mr-2 h-4 w-4" />
-            <span>Sign Up</span>
+            <span>{t('guest.signup')}</span>
           </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  const LanguageMenu = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="mr-2">
+          <Globe className="h-5 w-5" />
+          <span className="sr-only">{t('switchLanguage')}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => handleLanguageChange('en')} className={currentLocale === 'en' ? 'bg-accent' : ''}>
+          English
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleLanguageChange('btk')} className={currentLocale === 'btk' ? 'bg-accent' : ''}>
+          Batak
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleLanguageChange('id')} className={currentLocale === 'id' ? 'bg-accent' : ''}>
+          Bahasa Indonesia
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -114,7 +152,7 @@ export function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="flex items-center space-x-2">
-            <Users className="h-6 w-6 text-primary" />
+            <Image src="/images/icons/logo_tarombo_batak.png" alt="Tarombo Batak Logo" width={32} height={32} className="h-8 w-8" />
             <span className="hidden font-bold sm:inline-block font-headline font-toba">
               trom\bo
             </span>
@@ -140,8 +178,8 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="left">
                 <Link href="/" className="flex items-center space-x-2 mb-6">
-                  <Users className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-headline">Batak Lineage</span>
+                  <Image src="/images/icons/logo_tarombo_batak.png" alt="Tarombo Batak Logo" width={24} height={24} className="h-6 w-6" />
+                  <span className="font-bold font-headline">{t('nav.home')}</span>
                 </Link>
                 <nav className="flex flex-col space-y-4">
                   {navLinks.map((link) => (
@@ -160,6 +198,7 @@ export function Header() {
             </Sheet>
           </div>
           <div className="flex items-center">
+            <LanguageMenu />
             <UserMenu />
           </div>
         </div>

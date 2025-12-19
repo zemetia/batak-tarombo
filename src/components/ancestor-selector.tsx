@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Search, Users, ChevronRight } from 'lucide-react';
 import { getAllAncestors } from '@/lib/actions';
 import { type Ancestor } from '@/lib/data';
+import { useTranslations } from 'next-intl';
 
 interface AncestorSelectorProps {
   onSelect: (ancestor: Ancestor) => void;
@@ -24,6 +25,7 @@ interface AncestorWithDescendants extends Ancestor {
 }
 
 export function AncestorSelector({ onSelect, onCancel, isLoading = false }: AncestorSelectorProps) {
+  const t = useTranslations('AncestorSelector');
   const [ancestors, setAncestors] = useState<AncestorWithDescendants[]>([]);
   const [filteredAncestors, setFilteredAncestors] = useState<AncestorWithDescendants[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -108,11 +110,11 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
 
   const getGenerationLabel = (generation: number) => {
     switch (generation) {
-      case 1: return 'Founder';
-      case 2: return '2nd Gen';
-      case 3: return '3rd Gen';
-      case 4: return '4th Gen';
-      default: return `${generation}th Gen`;
+      case 1: return t('generations.founder');
+      case 2: return t('generations.gen2');
+      case 3: return t('generations.gen3');
+      case 4: return t('generations.gen4');
+      default: return t('generations.genN', {n: generation});
     }
   };
 
@@ -121,7 +123,7 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
         <div className="flex flex-col h-full">
             <div className="text-center py-8 flex-1 flex flex-col justify-center items-center">
                 <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
-                <p className="mt-2 text-muted-foreground">Loading ancestors...</p>
+                <p className="mt-2 text-muted-foreground">{t('loading')}</p>
             </div>
         </div>
     );
@@ -133,7 +135,7 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
-            placeholder="Search ancestors by name or generation..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -153,11 +155,11 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
                   </Avatar>
                   <div>
                     <h3 className="font-semibold">{selectedAncestor.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Badge variant="outline">{getGenerationLabel(selectedAncestor.generation)}</Badge>
-                      <span>•</span>
-                      <span>{selectedAncestor.descendantsCount} descendants</span>
-                    </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Badge variant="outline">{getGenerationLabel(selectedAncestor.generation)}</Badge>
+                        <span>•</span>
+                        <span>{t('descendants', {count: selectedAncestor.descendantsCount})}</span>
+                      </div>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-primary" />
@@ -173,7 +175,7 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
               <div className="text-center py-8">
                 <Users className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
                 <p className="text-muted-foreground">
-                  {searchTerm ? 'No ancestors found matching your search.' : 'No ancestors available.'}
+                  {searchTerm ? t('noResult') : t('empty')}
                 </p>
               </div>
             ) : (
@@ -197,7 +199,7 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
                           <h4 className="font-medium">{ancestor.name}</h4>
                           {ancestor.wife && (
                             <p className="text-sm text-muted-foreground">
-                              Married to {ancestor.wife}
+                              {t('marriedTo', {name: ancestor.wife})}
                             </p>
                           )}
                         </div>
@@ -208,7 +210,7 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
                             {getGenerationLabel(ancestor.generation)}
                           </Badge>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {ancestor.descendantsCount} descendants
+                            {t('descendants', {count: ancestor.descendantsCount})}
                           </p>
                         </div>
                       </div>
@@ -223,13 +225,13 @@ export function AncestorSelector({ onSelect, onCancel, isLoading = false }: Ance
         {/* Actions */}
         <div className="flex justify-between pt-4">
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t('buttons.cancel')}
           </Button>
           <Button 
             onClick={handleSelect} 
             disabled={!selectedAncestor || isLoading}
           >
-            {isLoading ? 'Creating Proposal...' : 'Create Proposal'}
+            {isLoading ? t('buttons.creating') : t('buttons.create')}
           </Button>
         </div>
       </div>

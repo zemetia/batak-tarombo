@@ -17,6 +17,7 @@ import { AncestorSelector } from '@/components/ancestor-selector';
 import { type Ancestor } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface User {
   id: string;
@@ -50,6 +51,7 @@ export default function ContributorPage() {
   const [showAncestorSelector, setShowAncestorSelector] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations('ContributorPage');
   
   const [newSubmission, setNewSubmission] = useState({
     ancestorName: '',
@@ -60,12 +62,12 @@ export default function ContributorPage() {
   });
 
   const statusConfig = {
-    waiting: { icon: Clock, color: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30', label: 'Waiting' },
-    in_review: { icon: MessageSquare, color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30', label: 'In Review' },
-    accepted: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: 'Accepted' },
-    accepted_with_discuss: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: 'Accepted (with Discussion)' },
-    rejected: { icon: XCircle, color: 'bg-red-500/20 text-red-700 dark:text-red-500 border-red-500/30', label: 'Rejected' },
-    cancelled: { icon: XCircle, color: 'bg-gray-500/20 text-gray-700 dark:text-gray-400 border-gray-500/30', label: 'Cancelled' },
+    waiting: { icon: Clock, color: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30', label: t('status.waiting') },
+    in_review: { icon: MessageSquare, color: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30', label: t('status.in_review') },
+    accepted: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: t('status.accepted') },
+    accepted_with_discuss: { icon: CheckCircle, color: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30', label: t('status.accepted_with_discuss') },
+    rejected: { icon: XCircle, color: 'bg-red-500/20 text-red-700 dark:text-red-500 border-red-500/30', label: t('status.rejected') },
+    cancelled: { icon: XCircle, color: 'bg-gray-500/20 text-gray-700 dark:text-gray-400 border-gray-500/30', label: t('status.cancelled') },
   };
 
   useEffect(() => {
@@ -108,8 +110,8 @@ export default function ContributorPage() {
       await cancelProposal(activeProposal.id, user.id);
       
       toast({
-        title: "Proposal Cancelled",
-        description: "Your proposal has been cancelled successfully.",
+        title: t('toasts.cancelled'),
+        description: t('toasts.cancelledDesc'),
       });
       
       loadUserData(user.id);
@@ -129,8 +131,8 @@ export default function ContributorPage() {
       // Show warning that they need to cancel current proposal first
       toast({
         variant: "destructive",
-        title: "Active Proposal Exists",
-        description: "Please cancel your current proposal before creating a new one.",
+        title: t('activeProposal.exists'),
+        description: t('activeProposal.existsDesc'),
       });
       return;
     }
@@ -156,8 +158,8 @@ export default function ContributorPage() {
       await forkDescendantTree(newSubmission.selectedAncestorId, proposal.id);
       
       toast({
-        title: "Proposal Created",
-        description: "Your proposal has been created. You can now edit the family tree.",
+        title: t('toasts.created'),
+        description: t('toasts.createdDesc'),
       });
       
       setNewSubmission({
@@ -192,10 +194,10 @@ export default function ContributorPage() {
       <header className="mb-8">
         <h1 className="font-headline text-4xl font-bold flex items-center gap-3">
           <User className="w-10 h-10 text-primary" />
-          Welcome, {user.name}
+          {t('header.welcome', {name: user.name})}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Manage your contributions and propose changes to the family tree.
+          {t('header.desc')}
         </p>
       </header>
       
@@ -207,10 +209,10 @@ export default function ContributorPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <GitBranch className="w-5 h-5 text-primary" />
-                  Active Proposal
+                  {t('activeProposal.title')}
                 </CardTitle>
                 <CardDescription>
-                  You have an active proposal for <strong>{activeProposal.ancestorName}</strong>
+                  {t.rich('activeProposal.desc', {ancestorName: activeProposal.ancestorName, bold: (chunks) => <strong>{chunks}</strong>})}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -224,7 +226,7 @@ export default function ContributorPage() {
                   <Button asChild className="w-full">
                     <Link href={`/contributor/edit-tree?proposalId=${activeProposal.id}`}>
                       <GitBranch className="mr-2 h-4 w-4" />
-                      Continue Editing
+                      {t('activeProposal.continue')}
                     </Link>
                   </Button>
                   <Button 
@@ -233,7 +235,7 @@ export default function ContributorPage() {
                     onClick={handleCancelProposal}
                     disabled={isLoading}
                   >
-                    Cancel Proposal
+                    {t('activeProposal.cancel')}
                   </Button>
                 </div>
               </CardContent>
@@ -242,15 +244,15 @@ export default function ContributorPage() {
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Create New Proposal</CardTitle>
+                  <CardTitle>{t('newProposal.title')}</CardTitle>
                   <CardDescription>
-                    Select an ancestor to start editing their descendants.
+                    {t('newProposal.desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button className="w-full" onClick={handleStartNewProposal}>
                     <Plus className="mr-2 h-4 w-4" />
-                    Start New Proposal
+                    {t('newProposal.start')}
                   </Button>
                 </CardContent>
               </Card>
@@ -263,10 +265,10 @@ export default function ContributorPage() {
                <DialogHeader className="p-6 pb-0">
                 <DialogTitle className="flex items-center gap-2">
                     <TreePine className="w-5 h-5" />
-                    Select Ancestor for Your Proposal
+                    {t('dialog.selectTitle')}
                 </DialogTitle>
                 <DialogDescription>
-                    Choose an ancestor whose descendants you want to edit. You can only edit people who are descendants of your chosen ancestor.
+                    {t('dialog.selectDesc')}
                 </DialogDescription>
               </DialogHeader>
               <div className="flex-1 overflow-hidden px-6 pb-6">
@@ -283,15 +285,15 @@ export default function ContributorPage() {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Create Proposal Details</DialogTitle>
+                <DialogTitle>{t('dialog.createTitle')}</DialogTitle>
                 <DialogDescription>
-                  Provide details about your proposed changes to <strong>{newSubmission.ancestorName}</strong>'s descendants.
+                    {t.rich('dialog.createDesc', {name: newSubmission.ancestorName, bold: (chunks) => <strong>{chunks}</strong>})}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                       <div className="grid gap-2">
-                        <Label htmlFor="ancestorName">Selected Ancestor</Label>
+                        <Label htmlFor="ancestorName">{t('dialog.ancestorLabel')}</Label>
                         <Input
                           id="ancestorName"
                           value={newSubmission.ancestorName}
@@ -300,20 +302,20 @@ export default function ContributorPage() {
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="changesDetail">Changes Detail *</Label>
+                        <Label htmlFor="changesDetail">{t('dialog.changesLabel')}</Label>
                         <Textarea
                           id="changesDetail"
-                          placeholder="Describe the changes or new information..."
+                          placeholder={t('dialog.changesPlaceholder')}
                           value={newSubmission.changesDetail}
                           onChange={(e) => setNewSubmission(prev => ({ ...prev, changesDetail: e.target.value }))}
                           required
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="taromboProve">Proof/Source URL *</Label>
+                        <Label htmlFor="taromboProve">{t('dialog.proofLabel')}</Label>
                         <Input
                           id="taromboProve"
-                          placeholder="Link to genealogy document or source"
+                          placeholder={t('dialog.proofPlaceholder')}
                           value={newSubmission.taromboProve}
                           onChange={(e) => setNewSubmission(prev => ({ ...prev, taromboProve: e.target.value }))}
                           required
@@ -322,7 +324,7 @@ export default function ContributorPage() {
                     </div>
                 <DialogFooter>
                   <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Submitting...' : 'Create Proposal'}
+                    {isLoading ? t('dialog.submitting') : t('dialog.submit')}
                   </Button>
                 </DialogFooter>
               </form>
@@ -333,25 +335,25 @@ export default function ContributorPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Your Proposals</CardTitle>
+              <CardTitle>{t('yourProposals.title')}</CardTitle>
               <CardDescription>
-                Track the status of your submitted proposals.
+                {t('yourProposals.desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {submissions.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-muted-foreground">No proposals submitted yet.</p>
+                  <p className="text-muted-foreground">{t('yourProposals.empty')}</p>
                 </div>
               ) : (
                 <div className="rounded-lg border">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Ancestor</TableHead>
-                        <TableHead className="hidden md:table-cell">Father</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="hidden lg:table-cell">Submitted</TableHead>
+                        <TableHead>{t('table.ancestor')}</TableHead>
+                        <TableHead className="hidden md:table-cell">{t('table.father')}</TableHead>
+                        <TableHead>{t('table.status')}</TableHead>
+                        <TableHead className="hidden lg:table-cell">{t('table.submitted')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -364,7 +366,7 @@ export default function ContributorPage() {
                               {submission.ancestorName}
                               {submission.adminNotes && (
                                 <div className="text-xs text-muted-foreground mt-1">
-                                  Note: {submission.adminNotes}
+                                  {t('table.note', {note: submission.adminNotes})}
                                 </div>
                               )}
                             </TableCell>

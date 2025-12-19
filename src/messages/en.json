@@ -1,0 +1,454 @@
+{
+  "HomePage": {
+    "title": "Batak Lineage",
+    "searchPlaceholder": "Search for an ancestor...",
+    "noData": "No lineage data available",
+    "loading": "Loading lineage data...",
+    "generations": "Generations",
+    "people": "People",
+    "filterByGeneration": "Filter by Generation",
+    "recentSearches": "Recent Searches",
+    "gen": "Gen",
+    "married": "Married",
+    "wife": "Wife"
+  },
+  "Layout": {
+    "title": "Batak Lineage",
+    "description": "Explore and contribute to the Batak family lineage."
+  },
+  "Header": {
+    "nav": {
+      "home": "Home",
+      "about": "About",
+      "contribute": "Contribute",
+      "donation": "Donation",
+      "admin": "Admin Panel"
+    },
+    "guest": {
+      "name": "Guest",
+      "email": "guest@example.com",
+      "login": "Login",
+      "signup": "Sign Up"
+    },
+    "switchLanguage": "Switch Language"
+  },
+  "LoginPage": {
+    "title": "Login",
+    "description": "Choose your account type and login below",
+    "contributor": "Contributor",
+    "admin": "Admin",
+    "email": "Email",
+    "password": "Password",
+    "placeholderEmail": "contributor@example.com",
+    "submitContributor": "Login as Contributor",
+    "submitAdmin": "Login as Admin",
+    "loading": "Logging in...",
+    "noAccount": "Don't have an account?",
+    "signup": "Sign up",
+    "toast": {
+      "successTitle": "Login Successful",
+      "successDesc": "Welcome back, {name}!",
+      "failTitle": "Login Failed",
+      "failDesc": "Invalid email or password.",
+      "errorTitle": "An error occurred",
+      "errorDesc": "Something went wrong. Please try again."
+    }
+  },
+  "SignupPage": {
+    "title": "Contributor Registration",
+    "description": "Create an account to start contributing to the lineage.",
+    "labels": {
+      "fullName": "Full Name",
+      "birthday": "Birthday",
+      "pickDate": "Pick a date",
+      "whatsapp": "WhatsApp Number",
+      "address": "Address",
+      "city": "City",
+      "country": "Country",
+      "facebook": "Facebook (Optional)",
+      "instagram": "Instagram (Optional)",
+      "email": "Email",
+      "password": "Password"
+    },
+    "placeholders": {
+      "fullName": "Enter your full name",
+      "whatsapp": "+62 123 4567 890",
+      "address": "Enter your full address",
+      "city": "e.g. Jakarta",
+      "country": "e.g. Indonesia",
+      "email": "m@example.com"
+    },
+    "buttons": {
+      "create": "Create an account",
+      "creating": "Creating account..."
+    },
+    "haveAccount": "Already have an account?",
+    "login": "Login",
+    "toasts": {
+      "success": "Registration Successful",
+      "successDesc": "Welcome, {name}! Your account has been created.",
+      "failed": "Registration Failed",
+      "failedDesc": "An account with this email may already exist."
+    }
+  },
+  "AboutPage": {
+    "title": "Tracing the Roots of the Batak People",
+    "subtitle": "A journey into the highland culture of North Sumatra, where ancient lineages weave the fabric of society.",
+    "sections": {
+      "one": {
+        "title": "Who are the Batak?",
+        "content1": "The Batak people embrace a rich tapestry of ethnic groups from North Sumatra, Indonesia. United by shared myths and a distinct language family, we are known for our strong adherence to <bold>Adat</bold> (customary law) and a social structure that binds us together.",
+        "content2": "From the intricate <bold>Gorga</bold> carvings to the majestic <bold>Jabu Bolon</bold> houses, our culture is a testament to agility and resilience. But our greatest monument is not built of stone or wood—it is built of names."
+      },
+      "two": {
+        "title": "Dalihan Na Tolu: The Three Pillars",
+        "content1": "Our society stands firm on <bold>Dalihan Na Tolu</bold> (The Three Stoves). This philosophy dictates the social roles of <bold>Hula-hula</bold> (wife-givers), <bold>Boru</bold> (wife-receivers), and <bold>Dongan Tubu</bold> (clan brothers).",
+        "content2": "It teaches us: <bold>Somba marhula-hula</bold> (Respect the wife-givers), <bold>Elek marboru</bold> (Persuade the wife-receivers), and <bold>Manat mardongan tubu</bold> (Be cautious with clan brothers). This is the compass of our social life."
+      },
+      "three": {
+        "title": "Tarombo: The Sacred Lineage",
+        "content1": "<bold>Tarombo</bold> is more than a family tree; it is our history book and our identity card. It traces our patrilineal descent back to <bold>Si Raja Batak</bold>. Knowing your Tarombo means knowing exactly where you stand in the grand scheme of the Batak universe.",
+        "content2": "Traditionally, tarombos were passed down orally or hand-drawn on paper diagrams kept preciously by families. Today, many exist as simple digital photos or files, but the essence remains the same: a fundamental pillar of Batak culture connecting the present generation to their ancestral roots."
+      },
+      "four": {
+        "title": "Our Mission",
+        "cards": {
+          "batak": {
+            "title": "Preserve Identity",
+            "desc": "To ensure every Batak descendant, no matter where they are born, can trace their roots and understand their place in the Dalihan Na Tolu."
+          },
+          "indonesia": {
+            "title": "Enrich Heritage",
+            "desc": "To contribute a detailed, living archive to Indonesia's diverse cultural mosaic, showcasing the depth of Nusantara's kinship systems."
+          },
+          "world": {
+            "title": "Global Archive",
+            "desc": "To offer the world a window into one of the most sophisticated and well-preserved anthropological lineage systems in existence."
+          }
+        }
+      },
+      "five": {
+        "title": "Martarombo: Connect to Your Roots",
+        "content": "There is a saying: <bold>\"Jolo tinittip sanggar, laho bahen huru-huan. Jolo sinungkun marga, asa binoto partuturan.\"</bold> (Cut the reeds to make a handle; ask the clan to know the relationship.) Join us in mapping the great Batak family tree.",
+        "button": "Start Contributing"
+      }
+    }
+  },
+  "ContributePage": {
+    "header": {
+      "title": "Manjujung Baringin",
+      "subtitle": "Upholding the Banyan Tree. Your knowledge strengthens the roots of our shared heritage."
+    },
+    "why": {
+      "title": "Every Name Counts",
+      "p1": "Just as the <bold>Baringin</bold> (Banyan tree) provides shelter with its many roots and branches, our Tarombo protects our identity. Missing names are like broken branches.",
+      "p2": "By recording your elders, parents, and children, you ensure they take their rightful place in history. You are not just entering data; you are performing an act of cultural devotion."
+    },
+    "how": {
+      "title": "How to Contribute",
+      "subtitle": "Join the community effort in four simple steps.",
+      "steps": {
+        "one": {
+          "title": "Join the Community",
+          "desc": "Create a contributor account to begin your journey."
+        },
+        "two": {
+          "title": "Share Knowledge",
+          "desc": "Share your lineage diagram or consult your Punguan Marga (Clan Association) or Clan Chief for accurate information."
+        },
+        "three": {
+          "title": "Community Review",
+          "desc": "Admins and elders verify the data to ensure the Tarombo remains accurate."
+        },
+        "four": {
+          "title": "Preserve Forever",
+          "desc": "Watch the tree grow as your contributions link families together."
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to leave your mark?",
+      "text": "Don't let the stories fade. Grab your records, call your grandparents, and help us digitized the wisdom of our ancestors.",
+      "createAccount": "Become a Contributor",
+      "signIn": "Login to Contribute"
+    }
+  },
+  "DonationPage": {
+    "title": "Siurupan: Mutual Assistance",
+    "description": "Support the digital preservation of Batak culture.",
+    "content": {
+      "p1": "In Batak culture, <bold>Siurupan</bold> means helping one another for a common good. This project is maintained by volunteers dedicated to keeping our history alive.",
+      "p2": "Your donation helps cover server costs, development of new features (like automated clan matching), and research efforts to verify ancient lineages.",
+      "p3": "Help us keep this digital Jabu Bolon standing strong for the next generation. Mauliate godang!"
+    },
+    "button": "Support Us"
+  },
+  "ContributorPage": {
+    "header": {
+      "welcome": "Welcome, {name}",
+      "desc": "Manage your contributions and propose changes to the family tree."
+    },
+    "activeProposal": {
+      "title": "Active Proposal",
+      "desc": "You have an active proposal for <bold>{ancestorName}</bold>",
+      "continue": "Continue Editing",
+      "cancel": "Cancel Proposal",
+      "exists": "Active Proposal Exists",
+      "existsDesc": "Please cancel your current proposal before creating a new one."
+    },
+    "newProposal": {
+      "title": "Create New Proposal",
+      "desc": "Select an ancestor to start editing their descendants.",
+      "start": "Start New Proposal"
+    },
+    "yourProposals": {
+      "title": "Your Proposals",
+      "desc": "Track the status of your submitted proposals.",
+      "empty": "No proposals submitted yet."
+    },
+    "table": {
+      "ancestor": "Ancestor",
+      "father": "Father",
+      "status": "Status",
+      "submitted": "Submitted",
+      "note": "Note: {note}"
+    },
+    "dialog": {
+      "selectTitle": "Select Ancestor for Your Proposal",
+      "selectDesc": "Choose an ancestor whose descendants you want to edit. You can only edit people who are descendants of your chosen ancestor.",
+      "createTitle": "Create Proposal Details",
+      "createDesc": "Provide details about your proposed changes to <bold>{name}</bold>'s descendants.",
+      "ancestorLabel": "Selected Ancestor",
+      "changesLabel": "Changes Detail *",
+      "changesPlaceholder": "Describe the changes or new information...",
+      "proofLabel": "Proof/Source URL *",
+      "proofPlaceholder": "Link to genealogy document or source",
+      "submit": "Create Proposal",
+      "submitting": "Submitting..."
+    },
+    "toasts": {
+      "cancelled": "Proposal Cancelled",
+      "cancelledDesc": "Your proposal has been cancelled successfully.",
+      "created": "Proposal Created",
+      "createdDesc": "Your proposal has been created. You can now edit the family tree."
+    },
+    "status": {
+      "waiting": "Waiting",
+      "in_review": "In Review",
+      "accepted": "Accepted",
+      "accepted_with_discuss": "Accepted (with Discussion)",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    }
+  },
+  "EditTreePage": {
+    "header": {
+      "editProposal": "Edit Proposal: {name}",
+      "editTree": "Edit Family Tree",
+      "proposalMode": "Proposal Mode",
+      "addRoot": "Add Root Person"
+    },
+    "stats": {
+      "people": "{count} people",
+      "generations": "{count} generations",
+      "new": "{count} new",
+      "edited": "{count} edited"
+    },
+    "tabs": {
+      "tree": "Tree View",
+      "history": "History ({count})",
+      "settings": "Settings"
+    },
+    "controls": {
+      "visible": "{count} visible",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all"
+    },
+    "history": {
+      "recent": "Recent Changes",
+      "empty": "No changes made yet. Start editing to see your history here."
+    },
+    "settings": {
+      "display": "Display Options",
+      "minimap": "Show minimap",
+      "background": "Show background",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "statistics": "Statistics",
+      "totalPeople": "Total People",
+      "totalGenerations": "Generations",
+      "newAdditions": "New Additions",
+      "modified": "Modified"
+    }
+  },
+  "AdminPage": {
+    "header": {
+      "title": "Admin Panel",
+      "welcome": "Welcome, {name}. Manage users and lineage data submissions."
+    },
+    "cards": {
+      "admins": "Total Admins",
+      "contributors": "Contributors",
+      "pending": "Pending Submissions",
+      "total": "Total Submissions"
+    },
+    "tabs": {
+      "submissions": "Data Submissions",
+      "contributors": "Contributors",
+      "admins": "Admin Users"
+    },
+    "table": {
+      "ancestor": "Ancestor Name",
+      "father": "Father's Name",
+      "submittedBy": "Submitted By",
+      "status": "Status",
+      "actions": "Actions",
+      "name": "Name",
+      "email": "Email",
+      "location": "Location",
+      "submissions": "Submissions",
+      "joined": "Joined",
+      "role": "Role",
+      "created": "Created"
+    },
+    "status": {
+      "waiting": "Waiting",
+      "in_review": "In Review",
+      "accepted": "Accepted",
+      "accepted_with_discuss": "Accepted (with Discussion)",
+      "rejected": "Rejected",
+      "placeholder": "Select status"
+    },
+    "buttons": {
+      "review": "Review",
+      "addAdmin": "Add Admin",
+      "updateStatus": "Update Status",
+      "updating": "Updating...",
+      "createAdmin": "Create Admin",
+      "creating": "Creating..."
+    },
+    "dialog": {
+      "addAdmin": {
+        "title": "Add New Admin",
+        "desc": "Create a new admin account with full system access.",
+        "fullName": "Full Name",
+        "email": "Email",
+        "password": "Password"
+      },
+      "review": {
+        "title": "Review Submission",
+        "desc": "Review and update the status of this lineage submission.",
+        "ancestorName": "Ancestor Name",
+        "fatherName": "Father's Name",
+        "submittedBy": "Submitted By",
+        "notSpecified": "Not specified",
+        "changes": "Changes Detail",
+        "proof": "Proof/Source",
+        "status": "Status",
+        "notes": "Admin Notes (Optional)",
+        "notesPlaceholder": "Add notes or feedback for the contributor..."
+      }
+    },
+    "toasts": {
+      "adminCreated": "Admin Created",
+      "adminCreatedDesc": "New admin account has been created successfully.",
+      "createFailed": "Failed to Create Admin",
+      "createFailedDesc": "There was an error creating the admin account.",
+      "reviewSubmitted": "Review Submitted",
+      "reviewSubmittedDesc": "Submission has been {status}.",
+      "reviewFailed": "Review Failed",
+      "reviewFailedDesc": "There was an error updating the submission."
+    }
+  },
+  "NotFoundPage": {
+    "title": "Page Not Found",
+    "description": "Could not find requested resource",
+    "home": "Return Home"
+  },
+  "PersonForm": {
+    "labels": {
+      "name": "Name",
+      "wife": "Wife",
+      "father": "Father",
+      "birthOrder": "Birth Order",
+      "description": "Description"
+    },
+    "placeholders": {
+      "selectFather": "Select father...",
+      "searchFather": "Search for father...",
+      "noFather": "No father found."
+    },
+    "validation": {
+      "nameMin": "Name must be at least 2 characters."
+    },
+    "titles": {
+      "edit": "Edit {name}",
+      "add": "Add New Person",
+      "editDesc": "Make changes to this person's profile.",
+      "addChildDesc": "Adding a new child for generation {generation}.",
+      "addRootDesc": "Add a new root person to the lineage."
+    },
+    "buttons": {
+      "save": "Save changes",
+      "cancel": "Cancel"
+    },
+    "options": {
+      "root": "None (Root Person)"
+    }
+  },
+  "AncestorSelector": {
+    "searchPlaceholder": "Search ancestors by name or generation...",
+    "loading": "Loading ancestors...",
+    "noResult": "No ancestors found matching your search.",
+    "empty": "No ancestors available.",
+    "descendants": "{count} descendants",
+    "marriedTo": "Married to {name}",
+    "buttons": {
+      "cancel": "Cancel",
+      "create": "Create Proposal",
+      "creating": "Creating Proposal..."
+    },
+    "generations": {
+      "founder": "Founder",
+      "gen2": "2nd Gen",
+      "gen3": "3rd Gen",
+      "gen4": "4th Gen",
+      "genN": "{n}th Gen"
+    }
+  },
+  "AncestorProfile": {
+    "generation": "Generation {gen}",
+    "startGeneration": "Start Generation from Here",
+    "about": "About",
+    "descDefault": "Detailed information about {name} is not yet available. Contributions from family members are welcome to enrich this profile.",
+    "wife": "Wife",
+    "children": "Children",
+    "noChildren": "No recorded children.",
+    "close": "Close"
+  },
+  "CustomNode": {
+    "marriedTo": "Married to {name}",
+    "founder": "Founder",
+    "founderDesc": "Founding ancestor",
+    "generation": "Generation {gen}",
+    "highlightPath": "Highlight path to root",
+    "expand": "Expand children",
+    "collapse": "Collapse children"
+  },
+  "EditableNode": {
+    "wife": "Wife: {name}",
+    "noWife": "No wife recorded",
+    "generation": "Generation {gen}",
+    "actions": {
+      "edit": "Edit Person",
+      "addChild": "Add Child",
+      "delete": "Delete"
+    },
+    "alert": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete {name} and all their descendants.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
+  }
+}

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { LineageGraph } from '@/components/lineage-graph';
@@ -15,9 +14,11 @@ import Image from 'next/image';
 import { getLineageData, getAllAncestors } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import { ReactFlowProvider } from 'reactflow';
+import { useTranslations } from 'next-intl';
 
 
 export default function Home() {
+  const t = useTranslations('HomePage');
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Ancestor[]>([]);
   const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
@@ -145,7 +146,7 @@ export default function Home() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search for an ancestor..."
+                  placeholder={t('searchPlaceholder')}
                   className={cn(
                     "w-full pl-12 pr-20 py-5 text-md rounded-full shadow-lg transition-all duration-200",
                     "focus:ring-2 focus:ring-primary/20 focus:border-primary",
@@ -160,7 +161,7 @@ export default function Home() {
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   {generationFilter && (
                     <Badge variant="outline" className="text-xs">
-                      Gen {generationFilter}
+                      {t('gen')} {generationFilter}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -198,7 +199,7 @@ export default function Home() {
               {showAdvancedSearch && (
                 <Card className="absolute top-full mt-2 w-full z-30 shadow-xl border-primary/20">
                   <CardHeader className="pb-3">
-                    <h3 className="font-semibold text-sm">Filter by Generation</h3>
+                    <h3 className="font-semibold text-sm">{t('filterByGeneration')}</h3>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-wrap gap-2">
@@ -210,7 +211,7 @@ export default function Home() {
                           onClick={() => setGenerationFilter(generationFilter === gen ? null : gen)}
                           className="text-xs"
                         >
-                          Gen {gen}
+                          {t('gen')} {gen}
                         </Button>
                       ))}
                     </div>
@@ -239,15 +240,15 @@ export default function Home() {
                                   <Crown className="w-3 h-3 text-amber-500" />
                                 )}
                                 {ancestor.wife && (
-                                  <Badge variant="secondary" className="text-xs">Married</Badge>
+                                  <Badge variant="secondary" className="text-xs">{t('married')}</Badge>
                                 )}
                               </div>
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <span>Generation {ancestor.generation}</span>
+                                <span>{t('generations')} {ancestor.generation}</span>
                                 {ancestor.wife && (
                                   <>
                                     <span>•</span>
-                                    <span>Wife: {ancestor.wife}</span>
+                                    <span>{t('wife')}: {ancestor.wife}</span>
                                   </>
                                 )}
                               </div>
@@ -262,7 +263,7 @@ export default function Home() {
               {!searchQuery && searchHistory.length > 0 && (
                 <Card className="absolute top-full mt-2 w-full z-15 shadow-lg">
                   <CardHeader className="pb-2">
-                    <h3 className="font-semibold text-sm text-muted-foreground">Recent Searches</h3>
+                    <h3 className="font-semibold text-sm text-muted-foreground">{t('recentSearches')}</h3>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex flex-wrap gap-2">
@@ -291,12 +292,12 @@ export default function Home() {
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-primary" />
                       <span className="font-medium">{stats.totalPeople}</span>
-                      <span className="text-muted-foreground">People</span>
+                      <span className="text-muted-foreground">{t('people')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <TreePine className="w-4 h-4 text-primary" />
                       <span className="font-medium">{stats.generations}</span>
-                      <span className="text-muted-foreground">Generations</span>
+                      <span className="text-muted-foreground">{t('generations')}</span>
                     </div>
                   </div>
                 </Card>
@@ -311,7 +312,7 @@ export default function Home() {
           <div className="flex items-center justify-center w-full h-full">
             <div className="flex flex-col items-center gap-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="text-muted-foreground">Loading lineage data...</p>
+              <p className="text-muted-foreground">{t('loading')}</p>
             </div>
           </div>
         ) : lineageData ? (
@@ -322,7 +323,7 @@ export default function Home() {
           <div className="flex items-center justify-center w-full h-full">
             <div className="text-center">
               <TreePine className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No lineage data available</p>
+              <p className="text-muted-foreground">{t('noData')}</p>
             </div>
           </div>
         )}

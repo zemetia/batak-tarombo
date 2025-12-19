@@ -34,6 +34,7 @@ import { PlusCircle, Save, Users, TreePine, Undo2, Redo2, Eye, EyeOff, History, 
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useTranslations } from 'next-intl';
 
 
 const nodeTypes = {
@@ -128,6 +129,7 @@ export default function EditTreePage() {
   const [editHistory, setEditHistory] = useState<EditAction[]>([]);
   const [selectedTab, setSelectedTab] = useState('tree');
   const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations('EditTreePage');
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'smoothstep', markerEnd: { type: MarkerType.ArrowClosed } }, eds)),
@@ -457,30 +459,30 @@ export default function EditTreePage() {
                       <div>
                         <h1 className="text-2xl font-bold font-headline flex items-center gap-2">
                           <TreePine className="w-6 h-6 text-primary" />
-                          {isProposalMode ? `Edit Proposal: ${activeProposal?.ancestorName}` : 'Edit Family Tree'}
+                          {isProposalMode ? t('header.editProposal', {name: activeProposal?.ancestorName}) : t('header.editTree')}
                         </h1>
                         {isProposalMode && (
                           <div className="mt-1">
                             <Badge variant="outline" className="text-blue-600 border-blue-300">
-                              Proposal Mode
+                              {t('header.proposalMode')}
                             </Badge>
                           </div>
                         )}
                         <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <span>{editStats.totalNodes} people</span>
+                          <span>{t('stats.people', {count: editStats.totalNodes})}</span>
                           <Separator orientation="vertical" className="h-4" />
-                          <span>{editStats.generations} generations</span>
+                          <span>{t('stats.generations', {count: editStats.generations})}</span>
                           {editStats.newNodes > 0 && (
                             <>
                               <Separator orientation="vertical" className="h-4" />
                               <Badge variant="outline" className="text-green-600 border-green-300">
-                                {editStats.newNodes} new
+                                {t('stats.new', {count: editStats.newNodes})}
                               </Badge>
                             </>
                           )}
                           {editStats.editedNodes > 0 && (
                             <Badge variant="outline" className="text-yellow-600 border-yellow-300">
-                              {editStats.editedNodes} edited
+                              {t('stats.edited', {count: editStats.editedNodes})}
                             </Badge>
                           )}
                         </div>
@@ -490,7 +492,7 @@ export default function EditTreePage() {
                             onClick={handleAddRoot} 
                             disabled={isLoading || (nodes.some(n => n.data.generation === 1) && !editingPerson)}
                           >
-                              <PlusCircle className="mr-2 w-4 h-4" /> Add Root Person
+                              <PlusCircle className="mr-2 w-4 h-4" /> {t('header.addRoot')}
                           </Button>
                       </div>
                   </div>
@@ -499,15 +501,15 @@ export default function EditTreePage() {
                     <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
                       <TabsTrigger value="tree" className="flex items-center gap-2">
                         <TreePine className="w-4 h-4" />
-                        Tree View
+                        {t('tabs.tree')}
                       </TabsTrigger>
                       <TabsTrigger value="history" className="flex items-center gap-2">
                         <History className="w-4 h-4" />
-                        History ({editHistory.length})
+                        {t('tabs.history', {count: editHistory.length})}
                       </TabsTrigger>
                       <TabsTrigger value="settings" className="flex items-center gap-2">
                         <Settings className="w-4 h-4" />
-                        Settings
+                        {t('tabs.settings')}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -540,7 +542,7 @@ export default function EditTreePage() {
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center gap-2 text-sm">
                         <Users className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{nodes.length} visible</span>
+                        <span className="font-medium">{t('controls.visible', {count: nodes.length})}</span>
                       </div>
                       
                       {/* Layout Controls */}
@@ -572,7 +574,7 @@ export default function EditTreePage() {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Expand all</p>
+                            <p>{t('controls.expandAll')}</p>
                           </TooltipContent>
                         </Tooltip>
                         
@@ -588,7 +590,7 @@ export default function EditTreePage() {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Collapse all</p>
+                            <p>{t('controls.collapseAll')}</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -603,13 +605,13 @@ export default function EditTreePage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <History className="w-5 h-5" />
-                    Recent Changes
+                    {t('history.recent')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {editHistory.length === 0 ? (
                     <p className="text-muted-foreground text-center py-8">
-                      No changes made yet. Start editing to see your history here.
+                      {t('history.empty')}
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -638,28 +640,28 @@ export default function EditTreePage() {
               <div className="grid gap-6 max-w-2xl">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Display Options</CardTitle>
+                    <CardTitle>{t('settings.display')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <label>Show minimap</label>
+                      <label>{t('settings.minimap')}</label>
                       <Button
                         variant={showMiniMap ? "default" : "outline"}
                         size="sm"
                         onClick={() => setShowMiniMap(!showMiniMap)}
                       >
-                        {showMiniMap ? "Enabled" : "Disabled"}
+                        {showMiniMap ? t('settings.enabled') : t('settings.disabled')}
                       </Button>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <label>Show background</label>
+                      <label>{t('settings.background')}</label>
                       <Button
                         variant={showBackground ? "default" : "outline"}
                         size="sm"
                         onClick={() => setShowBackground(!showBackground)}
                       >
-                        {showBackground ? "Enabled" : "Disabled"}
+                        {showBackground ? t('settings.enabled') : t('settings.disabled')}
                       </Button>
                     </div>
                   </CardContent>
@@ -667,24 +669,24 @@ export default function EditTreePage() {
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Statistics</CardTitle>
+                    <CardTitle>{t('settings.statistics')}</CardTitle>
                   </CardHeader>
                   <CardContent className="grid grid-cols-2 gap-4">
                     <div className="text-center p-3 border rounded-lg">
                       <div className="text-2xl font-bold text-primary">{editStats.totalNodes}</div>
-                      <div className="text-sm text-muted-foreground">Total People</div>
+                      <div className="text-sm text-muted-foreground">{t('settings.totalPeople')}</div>
                     </div>
                     <div className="text-center p-3 border rounded-lg">
                       <div className="text-2xl font-bold text-primary">{editStats.generations}</div>
-                      <div className="text-sm text-muted-foreground">Generations</div>
+                      <div className="text-sm text-muted-foreground">{t('settings.totalGenerations')}</div>
                     </div>
                     <div className="text-center p-3 border rounded-lg">
                       <div className="text-2xl font-bold text-green-600">{editStats.newNodes}</div>
-                      <div className="text-sm text-muted-foreground">New Additions</div>
+                      <div className="text-sm text-muted-foreground">{t('settings.newAdditions')}</div>
                     </div>
                     <div className="text-center p-3 border rounded-lg">
                       <div className="text-2xl font-bold text-yellow-600">{editStats.editedNodes}</div>
-                      <div className="text-sm text-muted-foreground">Modified</div>
+                      <div className="text-sm text-muted-foreground">{t('settings.modified')}</div>
                     </div>
                   </CardContent>
                 </Card>
