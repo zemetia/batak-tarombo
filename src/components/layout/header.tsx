@@ -32,6 +32,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { useLocale, useTranslations } from 'next-intl';
+import { useAuth } from '@/components/auth/auth-provider';
 
 const navLinksData = [
   { href: '/', labelKey: 'nav.home', icon: Home },
@@ -77,22 +78,48 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const currentLocale = useLocale();
+  const { user, logout } = useAuth();
 
   const navLinks = navLinksData.map(link => ({
     ...link,
     label: t(link.labelKey)
   }));
 
+  if (user) {
+    navLinks.push({
+      href: '/contributor',
+      labelKey: 'nav.contributor', // This key is not in navLinksData, so we construct it effectively
+      label: t('nav.contributor'),
+      icon: FilePlus, // Using FilePlus as a placeholder, or maybe another icon like Edit
+    });
+  }
+
   const handleLanguageChange = (locale: string) => {
     router.replace(pathname, { locale });
   };
 
-  const UserMenu = () => (
+
+
+  const UserMenu = () => {
+    if (!user) {
+      return (
+        <div className="flex items-center gap-2">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">{t('guest.login')}</Button>
+            </Link>
+            <Link href="/signup">
+              <Button size="sm">{t('guest.signup')}</Button>
+            </Link>
+        </div>
+      );
+    }
+
+    return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src="https://placehold.co/100x100" alt="User avatar" />
+            <AvatarImage src={user.avatarUrl || "https://placehold.co/100x100"} alt="User avatar" />
             <AvatarFallback>
               <Users />
             </AvatarFallback>
@@ -102,28 +129,43 @@ export function Header() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{t('guest.name')}</p>
+            <p className="text-sm font-medium leading-none">{user.fullName || user.email}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {t('guest.email')}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        
+        {/* Admin Link */}
+        {(user.role === 'ADMIN' || user.role === 'CONTRIBUTOR') && (
+           <DropdownMenuItem asChild>
+              <Link href="/admin">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                <span>Admin Dashboard</span>
+              </Link>
+           </DropdownMenuItem>
+        )}
+
+        {/* My Profile - TODO: Link to actual profile */}
+        {/*
         <DropdownMenuItem asChild>
-          <Link href="/login">
-            <LogIn className="mr-2 h-4 w-4" />
-            <span>{t('guest.login')}</span>
+          <Link href="/profile">
+            <Users className="mr-2 h-4 w-4" />
+            <span>My Profile</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/signup">
-            <Users className="mr-2 h-4 w-4" />
-            <span>{t('guest.signup')}</span>
-          </Link>
+        */}
+
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => logout()}>
+            <LogIn className="mr-2 h-4 w-4" />
+            <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+    );
+  };
 
   const LanguageMenu = () => (
     <DropdownMenu>

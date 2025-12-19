@@ -1,5 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ============================================================================
+// BATAK LINEAGE DATABASE SCHEMA
+// ============================================================================
+// Normalized Bilateral Version (Marriage Hub)
+// ============================================================================
 
 datasource db {
   provider = "postgresql"
@@ -10,102 +13,239 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  GENERAL
+  CONTRIBUTOR
+  ADMIN
+}
+
+enum AuthProvider {
+  GOOGLE
+  FACEBOOK
+  EMAIL
+  PHONE
+}
+
+enum RequestStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum OperationType {
+  NEW
+  EDIT
+  DELETE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum PersonStatus {
+  DRAFT
+  ACTIVE
+  DELETED
+}
+
+// ============================================================================
+// USER MANAGEMENT (NORMALIZED)
+// ============================================================================
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  
+  // Auth
+  uid         String?       @unique // Firebase UID
+  provider    AuthProvider? 
+  password    String?       // Fallback
+  
+  // Access
+  role       UserRole @default(GENERAL)
+  isVerified Boolean  @default(false)
+  isBanned   Boolean  @default(false)
+  
+  // One-to-One Profile
+  profile    UserProfile?
+
+  // Relations
+  requestsSubmitted Request[] @relation("RequestSubmitter")
+  requestsReviewed  Request[] @relation("RequestReviewer")
+  
+  // Audit Relations
+  personsCreated    Person[]  @relation("PersonCreator")
+  personsUpdated    Person[]  @relation("PersonUpdater")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+  @@index([uid])
+}
+
+model UserProfile {
+  id        String  @id @default(uuid())
+  
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String  @unique
+
+  fullName  String
+  marga     String?
+  birthday  DateTime?
+  whatsapp  String?
+  address   String?
+  city      String?
+  country   String?
+  facebook  String?
+  instagram String?
+  photoURL  String?
+}
+
+// ============================================================================
+// FAMILY TREE (NORMALIZED BILATERAL HUB)
+// ============================================================================
+
 model Person {
-  id          String    @id @default(uuid())
-  name        String
-  generation  Int
-  wife        String?
-  description String?
-  birthOrder  Int       @default(0)
-  father      Person?   @relation("Children", fields: [fatherId], references: [id], onDelete: SetNull)
-  fatherId    String?
-  contributor Contributor? @relation(fields: [contributorId], references: [id], onDelete: SetNull)
-  contributorId String?
+  id     String       @id @default(uuid())
+  
+  // Core Identity
+  name   String
+  gender Gender
+  status PersonStatus @default(DRAFT)
+  generation Int?
+  deletedAt DateTime? 
 
+  // Lineage: "I am a child of this Marriage"
+  parentId String?
+  parent   Marriage? @relation("Parenting", fields: [parentId], references: [id])
+  
+  // Marriage: "I am a partner in these marriages"
+  marriagesAsHusband Marriage[] @relation("Husband")
+  marriagesAsWife    Marriage[] @relation("Wife")
+  
+  // Details (Vertical Partitioning)
+  detail   PersonDetail?
+
+  // Audit
+  createdBy       User?   @relation("PersonCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdById     String?
+  
+  lastUpdatedBy   User?   @relation("PersonUpdater", fields: [lastUpdatedById], references: [id], onDelete: SetNull)
+  lastUpdatedById String?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  children    Person[]  @relation("Children")
-  @@index([contributorId])
+  // Request Links
+  personRequests PersonRequest[] 
+
+  @@index([name])
+  @@index([parentId])
+  @@index([status])
 }
 
-model ProposedPerson { //temporary
-  id          String    @id @default(uuid())
-  name        String
-  generation  Int
-  wife        String?
-  description String?
-  birthOrder  Int       @default(0)
-  father      ProposedPerson?   @relation("Children", fields: [fatherId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  fatherId    String?
-  originalPersonId String?  // Reference to original Person if editing existing
-  dataSubmissionId  String?
-  dataSubmission    DataSubmission? @relation(fields: [dataSubmissionId], references: [id], onDelete: Restrict)
-
-  @@index([dataSubmissionId])
-  @@index([originalPersonId])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  children    ProposedPerson[]  @relation("Children")
+model PersonDetail {
+  id        String @id @default(uuid())
+  
+  person    Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  personId  String @unique
+  
+  // Content
+  alternativeNames String[]
+  birthYear Int?
+  deathYear Int?
+  isAlive   Boolean @default(true)
+  huta      String?
+  description String? @db.Text
+  
+  // Order in family (optional, logic might be complex with Marriage hub)
+  birthOrder Int     @default(0)
 }
 
-model Admin {
+model Marriage {
   id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  password  String
 
-  createdAt DateTime @default(now())
+  // In case ini bingung anak nya dari mama yang mana, tolong buat Marriage dengan id istri null
+
+  // Partners
+  husband   Person   @relation("Husband", fields: [husbandId], references: [id], onDelete: Cascade)
+  husbandId String
+  
+  wife      Person?   @relation("Wife", fields: [wifeId], references: [id], onDelete: SetNull)
+  wifeId    String? 
+  
+  // Offspring
+  children  Person[] @relation("Parenting")
+  
+  // Metadata
+  marriageDate DateTime?
+  note         String?
+
+  @@index([husbandId])
+  @@index([wifeId])
+}
+
+// ============================================================================
+// REQUEST SYSTEM (VERSION CONTROL)
+// ============================================================================
+
+model Request {
+  id          String @id @default(uuid())
+  title       String
+  description String? @db.Text
+  
+  submittedBy   User     @relation("RequestSubmitter", fields: [submittedById], references: [id], onDelete: Cascade)
+  submittedById String
+  submittedAt   DateTime @default(now())
+  
+  taromboProveUrl String?
+
+  status      RequestStatus @default(PENDING)
+  
+  reviewedBy    User?     @relation("RequestReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedById  String?
+  reviewedAt    DateTime? 
+  adminNotes    String?   @db.Text
+
+  personRequests PersonRequest[]
+
   updatedAt DateTime @updatedAt
-  
-  reviewedSubmissions DataSubmission[]
-}
-
-model Contributor {
-  id            String           @id @default(uuid())
-  email         String           @unique
-  fullName      String
-  password      String
-  birthday      DateTime?
-  whatsapp      String?
-  address       String?
-  city          String?
-  country       String?
-  facebook      String?
-  instagram     String?
-
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-
-  submissions   DataSubmission[]
-  persons       Person[]
-}
-
-model DataSubmission {
-  id                String      @id @default(uuid())
-  changesDetail     String
-  status            String      @default("waiting") // waiting, in_review, accepted, accepted_with_discuss, rejected, cancelled
-  taromboProve      String // Image link
-  ancestorName      String
-  fatherName        String?
-  selectedAncestorId String?   // ID of the ancestor chosen for this proposal
-  proposalType      String     @default("lineage_edit") // lineage_edit, new_branch, correction
-  adminNotes        String?    // For admin comments/discussions
-  reviewedAt        DateTime?
-  reviewedBy        Admin?     @relation(fields: [adminId], references: [id])
-  adminId           String?
-
-  submittedAt  DateTime    @default(now())
-  
-  submittedBy  Contributor @relation(fields: [contributorId], references: [id])
-  contributorId String
-
-  proposedPersons ProposedPerson[]
   
   @@index([status])
-  @@index([contributorId])
-  @@index([selectedAncestorId])
-  @@index([contributorId, status])
+  @@index([submittedById])
+}
+
+model PersonRequest {
+  id        String @id @default(uuid())
+  
+  request   Request @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  requestId String
+
+  operation OperationType // NEW, EDIT, DELETE
+  
+  // Linked Person (The 'Draft' or 'Target')
+  person   Person? @relation(fields: [personId], references: [id], onDelete: Cascade)
+  personId String?
+
+  // Stored Deltas (JSON)
+  // Logic: 
+  // - NEW: Points to a Person(status=DRAFT). 'newData' can just be "See linked Person" or copy.
+  // - EDIT: Points to Person(status=ACTIVE). 'newData' has proposed changes.
+  newData      Json?
+  previousData Json?
+  
+  changedFields String[] @default([])
+
+  createdAt DateTime @default(now())
+
+  @@index([requestId])
+  @@index([operation])
 }

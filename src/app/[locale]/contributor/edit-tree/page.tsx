@@ -376,28 +376,33 @@ export default function EditTreePage() {
   const handleFormSubmit = async (data: PersonFormData) => {
     setIsLoading(true);
     try {
+      const payload = {
+          name: data.name,
+          generation: editingPerson?.generation || 0, // Placeholder, backend recalculates
+          wife: data.wife,
+          description: data.description,
+          fatherId: data.fatherId || null,
+          birthOrder: data.birthOrder,
+      };
+
       if (editingPerson?.id) { // Editing existing person
         if (isProposalMode) {
-          await updateProposedPerson(editingPerson.id, data);
+          await updateProposedPerson(editingPerson.id, payload);
+          // Note for Proposal Mode: The proposal system stores 'newData' JSON. 
+          // If we want the PROPOSAL to show the correct generation immediately in UI, we might need a fetch or local calc.
+          // However, the 'applyRequest' will enforce correctness. 
+          // For UI consistency in "Pre-approval", we might still want to guess it, but let's stick to the plan of trusting backend or refresh.
+          
         } else {
-          await updatePerson(editingPerson.id, data);
+          await updatePerson(editingPerson.id, payload);
         }
         setEditedNodes(prev => new Set(prev).add(editingPerson!.id as string));
-        addToHistory({ type: 'edit', personData: { ...editingPerson, ...data } });
+        addToHistory({ type: 'edit', personData: { ...editingPerson, ...payload } });
         toast({
           title: 'Success',
           description: 'Person updated successfully.',
         });
       } else { // Adding new person
-        const payload = {
-          name: data.name,
-          generation: editingPerson?.generation || 1,
-          wife: data.wife,
-          description: data.description,
-          fatherId: editingPerson?.fatherId || null,
-          birthOrder: data.birthOrder,
-        }
-        
         let newPerson;
         if (isProposalMode && activeProposal) {
           newPerson = await addProposedPerson({

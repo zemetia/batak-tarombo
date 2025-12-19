@@ -5,6 +5,8 @@ import '../globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
+import { verificationSession } from '@/lib/auth/session';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 export async function generateMetadata(props: {params: Promise<{locale: string}>}) {
   const params = await props.params;
@@ -33,6 +35,7 @@ export default async function RootLayout(props: {
   const { locale } = params;
   const children = props.children;
   const messages = await getMessages();
+  const session = await verificationSession();
 
   return (
     <html lang={locale} className="h-full">
@@ -47,11 +50,13 @@ export default async function RootLayout(props: {
         )}
       >
         <NextIntlClientProvider messages={messages}>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-          </div>
-          <Toaster />
+          <AuthProvider initialUser={session?.user || null}>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+            </div>
+            <Toaster />
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

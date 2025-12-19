@@ -75,7 +75,6 @@ export default function AboutPage() {
         {/* Section 2: Dalihan Na Tolu (The 3 Pillars) */}
         <section className="text-center space-y-12">
              <div className="max-w-3xl mx-auto space-y-4">
-                <Users className="w-12 h-12 text-[#7B1E1E] mx-auto" />
                 <h2 className="text-3xl md:text-4xl font-headline font-bold text-[#7B1E1E]">
                     {t('sections.two.title')}
                 </h2>

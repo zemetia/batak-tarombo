@@ -25,6 +25,7 @@ export default function Home() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [generationFilter, setGenerationFilter] = useState<number | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const [lineageData, setLineageData] = useState<Ancestor | null>(null);
@@ -155,7 +156,14 @@ export default function Home() {
                   aria-label="Search for an ancestor"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  onFocus={() => { if(searchQuery) setIsSuggestionsVisible(true)}}
+                  onFocus={() => { 
+                    setIsFocused(true);
+                    if(searchQuery) setIsSuggestionsVisible(true);
+                  }}
+                  onBlur={() => {
+                    // Small delay to allow clicking on suggestions/history
+                    setTimeout(() => setIsFocused(false), 200);
+                  }}
                 />
                 
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -260,7 +268,7 @@ export default function Home() {
                 </Card>
               )}
               
-              {!searchQuery && searchHistory.length > 0 && (
+              {!searchQuery && searchHistory.length > 0 && isFocused && (
                 <Card className="absolute top-full mt-2 w-full z-15 shadow-lg">
                   <CardHeader className="pb-2">
                     <h3 className="font-semibold text-sm text-muted-foreground">{t('recentSearches')}</h3>

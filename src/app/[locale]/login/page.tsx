@@ -20,6 +20,7 @@ import { useState } from "react";
 import { login, adminLogin } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { FirebaseLogin } from "@/components/auth/firebase-login";
 
 
 export default function LoginPage() {
@@ -40,11 +41,11 @@ export default function LoginPage() {
       if (contributor) {
         toast({
           title: t('toast.successTitle'),
-          description: t('toast.successDesc', {name: contributor.fullName}),
+          description: t('toast.successDesc', {name: contributor.profile?.fullName || contributor.email}),
         });
         localStorage.setItem('user', JSON.stringify({ 
           id: contributor.id, 
-          name: contributor.fullName, 
+          name: contributor.name, 
           email: contributor.email,
           role: 'contributor'
         }));
@@ -115,6 +116,10 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex justify-center mb-6">
+            <FirebaseLogin />
+          </div>
+
           <Tabs defaultValue="contributor" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="contributor" className="flex items-center gap-2">

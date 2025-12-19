@@ -26,12 +26,12 @@ import { type Ancestor } from '@/lib/data';
 import { AncestorProfile } from './ancestor-profile';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+// import { Badge } from '@/components/ui/badge'; // Unused
+import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { TriangleAlert, ZoomIn, ZoomOut, Maximize, RotateCcw, Eye, EyeOff, Users, Filter, Layers, TreePine, Minimize } from 'lucide-react';
+import { TriangleAlert, Maximize, Minimize, Eye, EyeOff, Users, Filter, Layers, TreePine } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+// import { cn } from '@/lib/utils'; // Unused
 
 const nodeTypes = {
   custom: CustomNode,
@@ -90,6 +90,8 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedAncestor, setSelectedAncestor] = useState<Ancestor | null>(null);
+  const selectedAncestorRef = useRef<Ancestor | null>(null); // Ref to access current selected without triggering effect
+  
   const [generationStartNode, setGenerationStartNode] = useState<string | null>(null);
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
   const [layoutType, setLayoutType] = useState<LayoutType>('comfortable');
@@ -101,6 +103,22 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { fitView } = useReactFlow();
+
+  // Sync ref with state
+  useEffect(() => {
+    selectedAncestorRef.current = selectedAncestor;
+  }, [selectedAncestor]);
+
+  // Separate effect for selection highlighting to avoid re-layout/fitView
+  useEffect(() => {
+    setNodes((nds) => nds.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        isSelected: node.id === selectedAncestor?.id
+      }
+    })));
+  }, [selectedAncestor, setNodes]);
 
   const handleFullscreen = () => {
     if (reactFlowWrapper.current) {
@@ -139,13 +157,8 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
 
   const handleNodeClick = useCallback((ancestor: Ancestor) => {
     setSelectedAncestor(ancestor);
-    setNodes(currentNodes =>
-        currentNodes.map(n => ({
-            ...n,
-            data: { ...n.data, isSelected: n.id === ancestor.id }
-        }))
-    );
-  }, [setNodes]);
+    // Selection update handled by separate effect
+  }, []);
 
   const handleStartGenerationFrom = useCallback((ancestorId: string) => {
       setGenerationStartNode(ancestorId);
@@ -209,6 +222,60 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
     return ids;
   }, [initialData]);
 
+  const filterLineage = useCallback((root: Ancestor, query: string): Ancestor | null => {
+    const lowerCaseQuery = query.toLowerCase();
+    const matchingNodes: Ancestor[] = [];
+    
+    const findMatches = (ancestor: Ancestor) => {
+        if (ancestor.name.toLowerCase().includes(lowerCaseQuery)) {
+            matchingNodes.push(ancestor);
+        }
+        if (ancestor.children) {
+            ancestor.children.forEach(findMatches);
+        }
+    };
+    
+    findMatches(root);
+
+    if (matchingNodes.length === 0) return null;
+
+    // For simplicity, we focus on the first match and its direct lineage.
+    const mainMatch = matchingNodes[0];
+    const pathToMainMatch: string[] = [];
+    
+    const findPath = (ancestor: Ancestor, targetId: string, currentPath: string[]): boolean => {
+        currentPath.push(ancestor.id);
+        if (ancestor.id === targetId) return true;
+        if (ancestor.children) {
+            for (const child of ancestor.children) {
+                if (findPath(child, targetId, currentPath)) return true;
+            }
+        }
+        currentPath.pop();
+        return false;
+    };
+
+    findPath(root, mainMatch.id, pathToMainMatch);
+
+    const buildFilteredTree = (ancestor: Ancestor, path: Set<string>): Ancestor | null => {
+        if (!path.has(ancestor.id)) return null;
+
+        let children: Ancestor[] = [];
+        if (ancestor.id === mainMatch.id) {
+            // If this is the matched node, include all its children
+            children = ancestor.children?.map(c => ({...c})) || [];
+        } else if (ancestor.children) {
+            // Otherwise, only include children that are on the path
+            children = ancestor.children.map(child => buildFilteredTree(child, path)).filter(Boolean) as Ancestor[];
+        }
+        
+        return { ...ancestor, children };
+    };
+
+    return buildFilteredTree(root, new Set(pathToMainMatch));
+  }, []);
+
+  // Main Layout Effect
   useEffect(() => {
     if (!initialData) return;
 
@@ -231,7 +298,7 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
 
     const allNodes: Node[] = [];
     const allEdges: Edge[] = [];
-    const isSelected = (ancestor: Ancestor) => selectedAncestor?.id === ancestor.id;
+    const isSelected = (ancestor: Ancestor) => selectedAncestorRef.current?.id === ancestor.id;
 
     const getGenerationOffset = (root: Ancestor, startId: string | null): number => {
         if (!startId) return 0;
@@ -334,77 +401,35 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           minGeneration: Math.min(...generations, 0)
         });
         
-        // This useEffect now correctly captures `fitView` and uses it.
+        // FIT VIEW LOGIC: Only strictly when structure changes significantly or search changes.
+        // We do basic fit view, but we can refine it.
+        // Using setTimeout to allow render
         const mainLineageNodes = layoutedNodes.filter(n => mainLineageIds.includes(n.id));
-        
-        // Use a timeout to ensure the DOM is updated before fitting the view
-        setTimeout(() => fitView({ nodes: mainLineageNodes.length > 0 ? mainLineageNodes : undefined, padding: 0.2 }), 100);
+        setTimeout(() => fitView({ nodes: mainLineageNodes.length > 0 ? mainLineageNodes : undefined, padding: 0.2, minZoom: 0.5 }), 50);
     }
-  }, [handleNodeClick, selectedAncestor, searchQuery, setNodes, setEdges, generationStartNode, initialData, collapsedNodes, layoutType, showGenNumbers, highlightedPath, handleHighlightPath, fitView, mainLineageIds]);
-  
-  const filterLineage = (root: Ancestor, query: string): Ancestor | null => {
-    const lowerCaseQuery = query.toLowerCase();
-    const matchingNodes: Ancestor[] = [];
-    
-    const findMatches = (ancestor: Ancestor) => {
-        if (ancestor.name.toLowerCase().includes(lowerCaseQuery)) {
-            matchingNodes.push(ancestor);
-        }
-        if (ancestor.children) {
-            ancestor.children.forEach(findMatches);
-        }
-    };
-    
-    findMatches(root);
-
-    if (matchingNodes.length === 0) return null;
-
-    // For simplicity, we focus on the first match and its direct lineage.
-    const mainMatch = matchingNodes[0];
-    const pathToMainMatch: string[] = [];
-    
-    const findPath = (ancestor: Ancestor, targetId: string, currentPath: string[]): boolean => {
-        currentPath.push(ancestor.id);
-        if (ancestor.id === targetId) return true;
-        if (ancestor.children) {
-            for (const child of ancestor.children) {
-                if (findPath(child, targetId, currentPath)) return true;
-            }
-        }
-        currentPath.pop();
-        return false;
-    };
-
-    findPath(root, mainMatch.id, pathToMainMatch);
-
-    const buildFilteredTree = (ancestor: Ancestor, path: Set<string>): Ancestor | null => {
-        if (!path.has(ancestor.id)) return null;
-
-        let children: Ancestor[] = [];
-        if (ancestor.id === mainMatch.id) {
-            // If this is the matched node, include all its children
-            children = ancestor.children?.map(c => ({...c})) || [];
-        } else if (ancestor.children) {
-            // Otherwise, only include children that are on the path
-            children = ancestor.children.map(child => buildFilteredTree(child, path)).filter(Boolean) as Ancestor[];
-        }
-        
-        return { ...ancestor, children };
-    };
-
-    return buildFilteredTree(root, new Set(pathToMainMatch));
-  };
-
+    // Removed selectedAncestor from dependencies to prevent reset on click
+  }, [
+    handleNodeClick, 
+    searchQuery, 
+    setNodes, 
+    setEdges, 
+    generationStartNode, 
+    initialData, 
+    collapsedNodes, 
+    layoutType, 
+    showGenNumbers, 
+    highlightedPath, 
+    handleHighlightPath, 
+    fitView, 
+    mainLineageIds,
+    handleToggleCollapse,
+    filterLineage
+  ]);
   
   const handleSheetOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       setSelectedAncestor(null);
-       setNodes(currentNodes =>
-        currentNodes.map(n => ({
-            ...n,
-            data: { ...n.data, isSelected: false }
-        }))
-    );
+      // Clean up selection will happen via the selection effect
     }
   };
 
@@ -418,108 +443,92 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={fitViewOptions}
+          // Remove default fitView prop to manually control it
           connectionMode={ConnectionMode.Loose}
           className="bg-background"
           proOptions={{ hideAttribution: true }}
+          minZoom={0.1}
+          maxZoom={1.5}
         >
           {showBackground && <Background />}
-          <Controls showInteractive={false} />
+          {/* Controls positioned clean at bottom right */}
+          <Controls position="top-left" className="mt-20 ml-2" showInteractive={false} />
           
-          {/* Enhanced Control Panel */}
-          <Panel position="bottom-left" className="m-2">
-            <Card className="p-3 bg-background/95 backdrop-blur-sm border shadow-lg">
-              <div className="flex flex-col gap-3">
-                {/* Graph Stats */}
-                <div className="flex items-center gap-2 text-sm">
+          {/* Consolidated Control Panel - Bottom Center/Left to avoid overlap */}
+          <Panel position="bottom-center" className="m-4 flex gap-4">
+             {/* Graph Stats & Filters */}
+            <Card className="p-2 bg-background/95 backdrop-blur-sm border shadow-lg flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm px-2">
                   <TreePine className="w-4 h-4 text-primary" />
-                  <span className="font-medium">{graphStats.visibleNodes} nodes</span>
-                  {graphStats.maxGeneration > 0 && (
-                    <>
-                      <Separator orientation="vertical" className="h-4" />
-                      <span className="text-muted-foreground">
-                        Gen {graphStats.minGeneration}-{graphStats.maxGeneration}
-                      </span>
-                    </>
-                  )}
+                  <span className="font-medium whitespace-nowrap">{graphStats.visibleNodes} nodes</span>
                 </div>
                 
-                {/* View Controls */}
+                <Separator orientation="vertical" className="h-4" />
+
                 <div className="flex gap-1">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleExpandAll}
-                        className="px-2 py-1 h-7"
-                      >
-                        <Eye className="w-3 h-3" />
+                      <Button variant="ghost" size="icon" onClick={handleExpandAll} className="h-8 w-8">
+                        <Eye className="w-4 h-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Expand all</p>
-                    </TooltipContent>
+                    <TooltipContent><p>Expand all</p></TooltipContent>
                   </Tooltip>
                   
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleCollapseAll}
-                        className="px-2 py-1 h-7"
-                      >
-                        <EyeOff className="w-3 h-3" />
+                      <Button variant="ghost" size="icon" onClick={handleCollapseAll} className="h-8 w-8">
+                        <EyeOff className="w-4 h-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Collapse all</p>
-                    </TooltipContent>
+                    <TooltipContent><p>Collapse all</p></TooltipContent>
                   </Tooltip>
                   
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button
-                        variant={showGenNumbers ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setShowGenNumbers(!showGenNumbers)}
-                        className="px-2 py-1 h-7"
-                      >
-                        <Layers className="w-3 h-3" />
+                      <Button variant={showGenNumbers ? "default" : "ghost"} size="icon" onClick={() => setShowGenNumbers(!showGenNumbers)} className="h-8 w-8">
+                        <Layers className="w-4 h-4" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Toggle generation numbers</p>
-                    </TooltipContent>
+                    <TooltipContent><p>Toggle Generations</p></TooltipContent>
                   </Tooltip>
+
+                   <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant={showMiniMap ? "default" : "ghost"} size="icon" onClick={() => setShowMiniMap(!showMiniMap)} className="h-8 w-8">
+                        <Users className="w-4 h-4" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Toggle Minimap</p></TooltipContent>
+                    </Tooltip>
+                    
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant={showBackground ? "default" : "ghost"} size="icon" onClick={() => setShowBackground(!showBackground)} className="h-8 w-8">
+                        <Filter className="w-4 h-4" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Toggle Grid</p></TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={handleFullscreen} className="h-8 w-8">
+                        {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</p></TooltipContent>
+                    </Tooltip>
                 </div>
-                
-                {highlightedPath.size > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setHighlightedPath(new Set())}
-                    className="text-xs"
-                  >
-                    Clear highlight
-                  </Button>
-                )}
-              </div>
             </Card>
-          </Panel>
-          
-          {/* Toggle Controls */}
-          <Panel position="bottom-right" className="m-2 hidden md:flex flex-col gap-2">
-            <div className="flex flex-col gap-2 p-2 rounded-lg bg-background/95 backdrop-blur-sm border shadow-lg">
-                {/* Layout Controls */}
-                <div className="flex gap-1">
+
+            {/* Layout Switcher */}
+             <Card className="p-2 bg-background/95 backdrop-blur-sm border shadow-lg flex items-center gap-1">
                   {Object.keys(LAYOUT_CONFIGS).map((layout) => (
                     <Tooltip key={layout}>
                       <TooltipTrigger asChild>
                         <Button
-                          variant={layoutType === layout ? "default" : "outline"}
+                          variant={layoutType === layout ? "default" : "ghost"}
                           size="sm"
                           onClick={() => setLayoutType(layout as LayoutType)}
                           className="text-xs px-2 py-1 h-7"
@@ -532,56 +541,23 @@ export function LineageGraph({ searchQuery, initialData }: LineageGraphProps) {
                       </TooltipContent>
                     </Tooltip>
                   ))}
-                </div>
-                <Separator/>
-                <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleFullscreen}
-                    >
-                    {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                    <p>{isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}</p>
-                </TooltipContent>
-                </Tooltip>
+            </Card>
 
-                <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                    variant={showMiniMap ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setShowMiniMap(!showMiniMap)}
-                    >
-                    <Users className="w-4 h-4" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                    <p>Toggle minimap</p>
-                </TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                    variant={showBackground ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setShowBackground(!showBackground)}
-                    >
-                    <Filter className="w-4 h-4" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                    <p>Toggle background</p>
-                </TooltipContent>
-                </Tooltip>
-            </div>
-            {showMiniMap && <MiniMap nodeStrokeWidth={3} zoomable pannable />}
+            {highlightedPath.size > 0 && (
+                <Button variant="destructive" size="sm" onClick={() => setHighlightedPath(new Set())}>
+                Clear Path
+                </Button>
+            )}
           </Panel>
           
+          {showMiniMap && (
+              <Panel position="bottom-right" className="m-2">
+                 <div className="border rounded-lg overflow-hidden shadow-lg bg-background">
+                     <MiniMap nodeStrokeWidth={3} zoomable pannable style={{height: 120, width: 160}} />
+                 </div>
+              </Panel>
+          )}
+
           {nodes.length === 0 && searchQuery && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                <Alert className="max-w-md">

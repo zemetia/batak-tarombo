@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { useTranslations } from "next-intl"
+import { FirebaseLogin } from "@/components/auth/firebase-login"
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -59,19 +60,19 @@ export default function SignupPage() {
     try {
       const contributorData = {
           ...formData,
-          birthday: formData.birthday ? new Date(formData.birthday) : null
+          birthday: formData.birthday ? new Date(formData.birthday) : undefined
       }
       
       const newContributor = await registerContributor(contributorData);
       
       toast({
         title: t('toasts.success'),
-        description: t('toasts.successDesc', {name: newContributor.fullName}),
+        description: t('toasts.successDesc', { name: newContributor.profile?.fullName || newContributor.email }),
       });
       
       localStorage.setItem('user', JSON.stringify({ 
         id: newContributor.id, 
-        name: newContributor.fullName, 
+        name: newContributor.name, 
         email: newContributor.email,
         role: 'contributor'
       }));
@@ -102,6 +103,10 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex justify-center mb-6">
+            <FirebaseLogin isSignup={true} />
+          </div>
+
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="grid gap-2">

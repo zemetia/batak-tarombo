@@ -7,164 +7,393 @@ export interface Ancestor {
   wife?: string | null;
   description?: string | null;
   birthOrder?: number;
-  fatherId?: string | null;
+  sex?: 'MALE' | 'FEMALE'; // Default MALE
+  alternativeNames?: string[];
   children?: Ancestor[];
 }
 
+// Helper to create IDs consistently if needed, but for now we generate them.
+// We will construct the tree from top to bottom.
 
-const siRajaBatakId = uuidv4();
-const guruTateaBulanId = uuidv4();
-const rajaIsumbaonId = uuidv4();
-const rajaBiakbiakId = uuidv4();
-const saribuRajaId = uuidv4();
-const rajaLontungId = uuidv4();
-const rajaBorborId = uuidv4();
-const togaSinagaId = uuidv4();
-const togaSitumorangId = uuidv4();
-const togaPandianganId = uuidv4();
-const togaNainggolanId = uuidv4();
-const togaSimatupangId = uuidv4();
-const togaAritonangId = uuidv4();
-const togaSitorusId = uuidv4();
-const situmorangSuhutnihutaId = uuidv4();
-const situmorangSiringoringoId = uuidv4();
-const sitorusPaneId = uuidv4();
-const sitorusDoriId = uuidv4();
-const sitorusBoltokId = uuidv4();
-const tuanSoriMangarajaId = uuidv4();
-const rajaAsiasiId = uuidv4();
-const sangkarSomalidangId = uuidv4();
-const naiAmbatonId = uuidv4();
-const simbolonId = uuidv4();
-const saragihId = uuidv4();
-const damanikId = uuidv4();
-const purbaId = uuidv4();
-
-
-export const lineageData: Ancestor = {
-  id: siRajaBatakId,
+// ============================================================================
+// GENERATION 1
+// ============================================================================
+const siRajaBatak: Ancestor = {
+  id: uuidv4(),
   name: 'Si Raja Batak',
   generation: 1,
-  wife: 'Si Boru Deak Parujar',
+  wife: 'Si Boru Deak Parujar', // Often cited, though myth varies
   birthOrder: 1,
-  children: [
-    {
-      id: guruTateaBulanId,
-      name: 'Guru Tatea Bulan',
-      generation: 2,
-      birthOrder: 1,
-      fatherId: siRajaBatakId,
-      children: [
-        {
-          id: rajaBiakbiakId,
-          name: 'Raja Biakbiak',
-          generation: 3,
-           birthOrder: 1,
-          fatherId: guruTateaBulanId,
-        },
-        {
-          id: saribuRajaId,
-          name: 'Saribu Raja',
-          generation: 3,
-           birthOrder: 2,
-          fatherId: guruTateaBulanId,
-          children: [
-             {
-              id: rajaLontungId,
-              name: 'Raja Lontung',
-              generation: 4,
-              wife: 'Si Boru Pareme',
-               birthOrder: 1,
-              fatherId: saribuRajaId,
-              children: [
-                { id: togaSinagaId, name: 'Toga Sinaga', generation: 5, wife: 'Boru huta',  birthOrder: 1, fatherId: rajaLontungId },
-                { 
-                  id: togaSitumorangId, 
-                  name: 'Toga Situmorang', 
-                  generation: 5,
-                  wife: 'Boru huta',
-                   birthOrder: 2,
-                  fatherId: rajaLontungId,
-                  children: [
-                    { id: situmorangSuhutnihutaId, name: 'Situmorang Suhutnihuta', generation: 6, birthOrder: 1, fatherId: togaSitumorangId },
-                    { id: situmorangSiringoringoId, name: 'Situmorang Siringoringo', generation: 6, birthOrder: 2, fatherId: togaSitumorangId },
-                  ]
-                },
-                { id: togaPandianganId, name: 'Toga Pandiangan', generation: 5, wife: 'Boru huta',  birthOrder: 3, fatherId: rajaLontungId },
-                { id: togaNainggolanId, name: 'Toga Nainggolan', generation: 5, wife: 'Boru huta',  birthOrder: 4, fatherId: rajaLontungId },
-                { id: togaSimatupangId, name: 'Toga Simatupang', generation: 5, wife: 'Boru huta',  birthOrder: 5, fatherId: rajaLontungId },
-                { id: togaAritonangId, name: 'Toga Aritonang', generation: 5, wife: 'Boru huta',  birthOrder: 6, fatherId: rajaLontungId },
-                { 
-                  id: togaSitorusId, 
-                  name: 'Toga Sitorus', 
-                  generation: 5,
-                  wife: 'Boru huta',
-                   birthOrder: 7,
-                  fatherId: rajaLontungId,
-                  children: [
-                    { id: sitorusPaneId, name: 'Sitorus Pane', generation: 6,  birthOrder: 1, fatherId: togaSitorusId },
-                    { id: sitorusDoriId, name: 'Sitorus Dori', generation: 6,  birthOrder: 2, fatherId: togaSitorusId },
-                    { id: sitorusBoltokId, name: 'Sitorus Boltok', generation: 6,  birthOrder: 3, fatherId: togaSitorusId },
-                  ]
-                },
-              ]
-            },
-            {
-              id: rajaBorborId,
-              name: 'Raja Borbor',
-              generation: 4,
-               birthOrder: 2,
-              fatherId: saribuRajaId,
-            },
-          ]
-        },
-      ],
-    },
-    {
-      id: rajaIsumbaonId,
-      name: 'Raja Isumbaon',
-      generation: 2,
-      birthOrder: 2,
-      fatherId: siRajaBatakId,
-      children: [
-        {
-          id: tuanSoriMangarajaId,
-          name: 'Tuan Sori Mangaraja',
-          generation: 3,
-          wife: 'Si Boru Anting-anting',
-           birthOrder: 1,
-          fatherId: rajaIsumbaonId,
-           children: [
-             {
-              id: naiAmbatonId,
-              name: 'Nai Ambaton (Parna)',
-              generation: 4,
-               birthOrder: 1,
-              fatherId: tuanSoriMangarajaId,
-              children: [
-                { id: simbolonId, name: 'Simbolon', generation: 5,  birthOrder: 1, fatherId: naiAmbatonId },
-                { id: saragihId, name: 'Saragih', generation: 5,  birthOrder: 2, fatherId: naiAmbatonId },
-                { id: damanikId, name: 'Damanik', generation: 5,  birthOrder: 3, fatherId: naiAmbatonId },
-                { id: purbaId, name: 'Purba', generation: 5,  birthOrder: 4, fatherId: naiAmbatonId },
-              ]
-            },
-          ]
-        },
-         {
-          id: rajaAsiasiId,
-          name: 'Raja Asiasi',
-          generation: 3,
-           birthOrder: 2,
-          fatherId: rajaIsumbaonId,
-        },
-         {
-          id: sangkarSomalidangId,
-          name: 'Sangkar Somalidang',
-          generation: 3,
-           birthOrder: 3,
-          fatherId: rajaIsumbaonId,
-        },
-      ],
-    },
-  ],
+  children: [] // Populated below
 };
+
+// ============================================================================
+// GENERATION 2 (Sons of Si Raja Batak)
+// ============================================================================
+const guruTateaBulan: Ancestor = {
+  id: uuidv4(),
+  name: 'Guru Tatea Bulan',
+  generation: 2,
+  birthOrder: 1,
+  wife: 'Si Boru Baso Burning',
+  children: []
+};
+
+const rajaIsumbaon: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Isumbaon',
+    generation: 2,
+    birthOrder: 2,
+    children: []
+};
+
+siRajaBatak.children?.push(guruTateaBulan, rajaIsumbaon);
+
+// ============================================================================
+// GENERATION 3 (Children of Guru Tatea Bulan)
+// ============================================================================
+// 1. Raja Biakbiak (Raja Uti)
+// 2. Saribu Raja
+// 3. Limbong Mulana
+// 4. Sagala Raja
+// 5. Silau Raja
+// Daughters: Si Boru Pareme, etc. (Omitted for brevity unless requested as main line)
+
+const rajaBiakbiak: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Biakbiak',
+    generation: 3,
+    birthOrder: 1,
+    alternativeNames: ['Raja Uti', 'Gumelenggeleng'],
+    children: [] // Often said to have no descendants or is special
+};
+
+const saribuRaja: Ancestor = {
+    id: uuidv4(),
+    name: 'Saribu Raja',
+    generation: 3,
+    birthOrder: 2,
+    children: []
+};
+
+const limbongMulana: Ancestor = {
+    id: uuidv4(),
+    name: 'Limbong Mulana',
+    generation: 3,
+    birthOrder: 3,
+    children: []
+};
+
+const sagalaRaja: Ancestor = {
+    id: uuidv4(),
+    name: 'Sagala Raja',
+    generation: 3,
+    birthOrder: 4,
+    children: []
+};
+
+
+const silauRaja: Ancestor = {
+    id: uuidv4(),
+    name: 'Silau Raja',
+    generation: 3,
+    birthOrder: 5,
+    children: []
+};
+
+guruTateaBulan.children?.push(rajaBiakbiak, saribuRaja, limbongMulana, sagalaRaja, silauRaja);
+
+// ============================================================================
+// GENERATION 3 (Children of Raja Isumbaon)
+// ============================================================================
+// 1. Tuan Sori Mangaraja
+// 2. Raja Asiasi
+// 3. Sangkar Somalidang
+
+const tuanSoriMangaraja: Ancestor = {
+    id: uuidv4(),
+    name: 'Tuan Sori Mangaraja',
+    generation: 3,
+    birthOrder: 1,
+    children: []
+};
+
+const rajaAsiasi: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Asiasi',
+    generation: 3,
+    birthOrder: 2,
+    children: []
+};
+
+const sangkarSomalidang: Ancestor = {
+    id: uuidv4(),
+    name: 'Sangkar Somalidang',
+    generation: 3,
+    birthOrder: 3,
+    children: []
+};
+
+rajaIsumbaon.children?.push(tuanSoriMangaraja, rajaAsiasi, sangkarSomalidang);
+
+
+// ============================================================================
+// GENERATION 4 (Children of Saribu Raja - GTB Line)
+// ============================================================================
+// 1. Raja Lontung (Mother: Si Boru Pareme)
+// 2. Raja Borbor (Mother: Nai Manggiring Laut)
+
+const rajaLontung: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Lontung',
+    generation: 4,
+    birthOrder: 1,
+    wife: 'Si Boru Pareme',
+    children: []
+};
+
+const rajaBorbor: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Borbor',
+    generation: 4,
+    birthOrder: 2,
+    children: []
+};
+
+saribuRaja.children?.push(rajaLontung, rajaBorbor);
+
+// ============================================================================
+// GENERATION 4 (Children of Tuan Sori Mangaraja - Isumbaon Line)
+// ============================================================================
+// 1. Tuan Sorbadijulu (Nai Ambaton)
+// 2. Tuan Sorbadijae (Datu Pejel / Nai Rasaon)
+// 3. Tuan Sorbadibanua (Nai Suanon)
+
+const tuanSorbadijulu: Ancestor = {
+    id: uuidv4(),
+    name: 'Tuan Sorbadijulu',
+    alternativeNames: ['Raja Nai Ambaton'],
+    generation: 4,
+    birthOrder: 1,
+    children: []
+};
+
+const tuanSorbadijae: Ancestor = {
+    id: uuidv4(),
+    name: 'Tuan Sorbadijae',
+    alternativeNames: ['Datu Pejel', 'Raja Nai Rasaon'],
+    generation: 4,
+    birthOrder: 2,
+    children: []
+};
+
+const tuanSorbadibanua: Ancestor = {
+    id: uuidv4(),
+    name: 'Tuan Sorbadibanua',
+    alternativeNames: ['Raja Nai Suanon'],
+    generation: 4,
+    birthOrder: 3,
+    children: []
+};
+
+tuanSoriMangaraja.children?.push(tuanSorbadijulu, tuanSorbadijae, tuanSorbadibanua);
+
+
+// ============================================================================
+// GENERATION 5 (Detailed branches)
+// ============================================================================
+
+// --- LONTUNG BRANCH (Children of Raja Lontung) ---
+const lontungChildrenData = [
+    { name: 'Toga Sinaga', order: 1 },
+    { name: 'Toga Situmorang', order: 2 },
+    { name: 'Toga Pandiangan', order: 3 },
+    { name: 'Toga Nainggolan', order: 4 },
+    { name: 'Toga Simatupang', order: 5 },
+    { name: 'Toga Aritonang', order: 6 },
+    { name: 'Toga Siregar', order: 7 },
+];
+
+lontungChildrenData.forEach(child => {
+    rajaLontung.children?.push({
+        id: uuidv4(),
+        name: child.name,
+        generation: 5,
+        birthOrder: child.order,
+        children: []
+    });
+});
+
+// --- BORBOR BRANCH (Children of Raja Borbor) ---
+// Minimal detail for now as focus is Sitorus Pane (Isumbaon line)
+rajaBorbor.children?.push({
+    id: uuidv4(),
+    name: 'Balwa',
+    generation: 5,
+    birthOrder: 1,
+    children: [] // and descendants like Datu Dalu, Saragih, etc.
+});
+
+
+// --- NAI AMBATON BRANCH (Children of Tuan Sorbadijulu) ---
+const naiAmbatonChildren = [
+    { name: 'Simbolon Tua', order: 1 },
+    { name: 'Tamba Tua', order: 2 },
+    { name: 'Saragi Tua', order: 3 },
+    { name: 'Munte Tua', order: 4 },
+    { name: 'Nahampun Tua', order: 5 } // Tradition varies
+];
+naiAmbatonChildren.forEach(child => {
+    tuanSorbadijulu.children?.push({
+        id: uuidv4(),
+        name: child.name,
+        generation: 5,
+        birthOrder: child.order,
+        children: []
+    });
+});
+
+
+// --- NAI RASAON BRANCH (Children of Tuan Sorbadijae) ---
+// Focus Line for Sitorus
+const rajaNarasaon: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Mangarerak', // Also known as Raja Narasaon? Wikipedia says Tuan Sorbadijae had son Raja Narasaon.
+    alternativeNames: ['Raja Narasaon'],
+    generation: 5,
+    birthOrder: 1,
+    children: []
+};
+tuanSorbadijae.children?.push(rajaNarasaon);
+
+
+// --- NAI SUANON BRANCH (Children of Tuan Sorbadibanua) ---
+const naiSuanonChildren = [
+    { name: 'Sibagot ni Pohan', order: 1 },
+    { name: 'Sipaettua', order: 2 },
+    { name: 'Silahisabungan', order: 3 },
+    { name: 'Raja Oloan', order: 4 },
+    { name: 'Raja Hutalima', order: 5 },
+    { name: 'Raja Sumba', order: 6 },
+    { name: 'Raja Sobu', order: 7 },
+    { name: 'Raja Naipospos', order: 8 }
+];
+naiSuanonChildren.forEach(child => {
+    tuanSorbadibanua.children?.push({
+        id: uuidv4(),
+        name: child.name,
+        generation: 5,
+        birthOrder: child.order,
+        children: []
+    });
+});
+
+// ============================================================================
+// GENERATION 6 (Descendants of Raja Narasaon - Sitorus Line)
+// ============================================================================
+// Wikipedia: Raja Narasaon had a son Raja Mangatur.
+
+const rajaMangatur: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Mangatur',
+    generation: 6,
+    birthOrder: 1,
+    children: []
+};
+// Note: Raja Narasaon also had Raja Natoras? Wikipedia mentioned Mangatur.
+rajaNarasaon.children?.push(rajaMangatur);
+
+
+// ============================================================================
+// GENERATION 7 (Descendants of Raja Mangatur)
+// ============================================================================
+// Wikipedia: Raja Mangatur -> Raja Sitorus (or Toga Raja Sitorus), Raja Sirait, Raja Butarbutar
+
+const rajaSitorus: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Sitorus',
+    alternativeNames: ['Toga Raja Sitorus'],
+    generation: 7,
+    birthOrder: 1, // Usually 3 sons: Sitorus, Sirait, Butarbutar. Order varies.
+    children: []
+};
+
+const rajaSirait: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Sirait',
+    generation: 7,
+    birthOrder: 2,
+    children: []
+};
+
+const rajaButarbutar: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Butarbutar',
+    generation: 7,
+    birthOrder: 3,
+    children: []
+};
+
+rajaMangatur.children?.push(rajaSitorus, rajaSirait, rajaButarbutar);
+
+
+// ============================================================================
+// GENERATION 8 (Descendants of Raja Sitorus)
+// ============================================================================
+// Children: Raja Pane, Raja Dori, Raja Boltok
+
+const rajaPane: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Pane',
+    generation: 8,
+    birthOrder: 1,
+    children: []
+};
+
+const rajaDori: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Dori',
+    generation: 8,
+    birthOrder: 2,
+    children: []
+};
+
+const rajaBoltok: Ancestor = {
+    id: uuidv4(),
+    name: 'Raja Boltok',
+    generation: 8,
+    birthOrder: 3,
+    children: []
+};
+
+rajaSitorus.children?.push(rajaPane, rajaDori, rajaBoltok);
+
+// ============================================================================
+// GENERATION 9 (Descendants of Raja Pane - Sitorus Pane)
+// ============================================================================
+// Children of Raja Pane: Sitorus Pane (as the clan progenitor, often just "Pane" descendants)
+// Wikipedia says Sitorus Pane is the branch.
+// Specific descendants: Raja Uluan, Pande Sionggang.
+// I'll add "Sitorus Pane" as a person or the immediate sons if "Sitorus Pane" implies the sub-marga. 
+// User asked to "Sitorus Pane generation". 
+// If Raja Pane is the father of the 'Pane' lineage, his children are the first 'Sitorus Pane'.
+// Let's add his children:
+
+const sitorusPaneChildren = [
+    { name: 'Raja Uluan', order: 1 },
+    { name: 'Pande Sionggang', order: 2 }
+];
+
+sitorusPaneChildren.forEach(child => {
+    rajaPane.children?.push({
+         id: uuidv4(),
+         name: child.name,
+         description: 'Progenitor of Sitorus Pane sub-marga',
+         generation: 9,
+         birthOrder: child.order,
+         children: []
+    });
+});
+
+
+export const lineageData: Ancestor = siRajaBatak;

@@ -1,0 +1,464 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==================== CORE ENTITIES ====================
+
+model Person {
+  id          String    @id @default(uuid())
+  name        String
+  generation  Int       // Generasi ke-berapa dari ancestor pertama
+  birthOrder  Int       @default(0) // Urutan lahir dari ayah yang sama
+  birthYear   Int?
+  deathYear   Int?
+  description String?
+  isAlive     Boolean   @default(true)
+  
+  // Patrilineal relationship
+  father      Person?   @relation("FatherChildren", fields: [fatherId], references: [id], onDelete: SetNull)
+  fatherId    String?
+  children    Person[]  @relation("FatherChildren")
+  
+  // Mother information (nama saja, bukan Person instance)
+  motherName  String?   // Nama ibu (dari Wife yang mana)
+  motherWifeId String?  // Reference ke Wife untuk tracking
+  motherWife  Wife?     @relation(fields: [motherWifeId], references: [id], onDelete: SetNull)
+  
+  // Wives (multiple)
+  wives       PersonWife[]
+  
+  // Versioning & Contribution
+  branchId    String?
+  branch      Branch?   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  contributorId String?
+  contributor   Contributor? @relation(fields: [contributorId], references: [id], onDelete: SetNull)
+  
+  // Metadata
+  status      PersonStatus @default(PENDING) // PENDING, APPROVED, DISPUTED, MERGED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  commits     CommitPerson[]
+  disputes    Dispute[]
+
+  @@index([fatherId])
+  @@index([branchId])
+  @@index([contributorId])
+  @@index([motherWifeId])
+  @@index([generation])
+}
+
+model Wife {
+  id          String    @id @default(uuid())
+  name        String
+  birthYear   Int?
+  deathYear   Int?
+  origin      String?   // Asal marga istri (opsional)
+  description String?
+  
+  // Relations
+  personWives PersonWife[]
+  childrenAsMother Person[] // Anak-anak yang ibunya dia
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([name])
+}
+
+// Junction table untuk many-to-many Person-Wife
+model PersonWife {
+  id          String    @id @default(uuid())
+  
+  personId    String
+  person      Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  
+  wifeId      String
+  wife        Wife      @relation(fields: [wifeId], references: [id], onDelete: Cascade)
+  
+  marriageOrder Int     @default(1) // Istri ke-berapa
+  marriageYear  Int?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@unique([personId, wifeId])
+  @@index([personId])
+  @@index([wifeId])
+}
+
+// ==================== GIT-LIKE VERSIONING ====================
+
+model Branch {
+  id          String    @id @default(uuid())
+  name        String    // e.g., "sitorus-main", "user123-contribution-2024"
+  description String?
+  
+  branchType  BranchType @default(FEATURE) // MAIN, FEATURE, HOTFIX
+  isMain      Boolean   @default(false)
+  
+  // Parent branch (untuk tracking dari mana branch ini dibuat)
+  parentBranchId String?
+  parentBranch   Branch?  @relation("BranchForks", fields: [parentBranchId], references: [id])
+  childBranches  Branch[] @relation("BranchForks")
+  
+  // Marga yang di-cover
+  marga       String    // e.g., "Sitorus", "Simatupang"
+  
+  creatorId   String
+  creator     Contributor @relation(fields: [creatorId], references: [id])
+  
+  status      BranchStatus @default(ACTIVE) // ACTIVE, MERGED, ARCHIVED, REJECTED
+  
+  // Relations
+  persons     Person[]
+  commits     Commit[]
+  mergeRequests MergeRequest[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([marga])
+  @@index([creatorId])
+  @@index([isMain])
+}
+
+model Commit {
+  id          String    @id @default(uuid())
+  message     String    // Commit message
+  description String?   // Detailed description
+  
+  branchId    String
+  branch      Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  contributorId String
+  contributor   Contributor @relation(fields: [contributorId], references: [id])
+  
+  // Commit bisa punya multiple persons & relations
+  persons     CommitPerson[]
+  
+  // Parent commit (untuk tracking history)
+  parentCommitId String?
+  parentCommit   Commit?  @relation("CommitHistory", fields: [parentCommitId], references: [id])
+  childCommits   Commit[] @relation("CommitHistory")
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([branchId])
+  @@index([contributorId])
+}
+
+// Junction table untuk tracking person changes per commit
+model CommitPerson {
+  id          String    @id @default(uuid())
+  
+  commitId    String
+  commit      Commit    @relation(fields: [commitId], references: [id], onDelete: Cascade)
+  
+  personId    String
+  person      Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  
+  changeType  ChangeType // ADD, UPDATE, DELETE
+  
+  // Snapshot data sebelum perubahan (untuk rollback)
+  previousData Json?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([commitId])
+  @@index([personId])
+}
+
+model MergeRequest {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  
+  // Source & Target branches
+  sourceBranchId String
+  sourceBranch   Branch  @relation(fields: [sourceBranchId], references: [id], onDelete: Cascade)
+  
+  targetBranchId String
+  targetBranch   String  // Biasanya "main"
+  
+  creatorId   String
+  creator     Contributor @relation(fields: [creatorId], references: [id])
+  
+  status      MergeStatus @default(PENDING) // PENDING, APPROVED, REJECTED, MERGED
+  
+  // Review & Approval
+  reviewerId  String?
+  reviewer    Contributor? @relation("MergeReviewer", fields: [reviewerId], references: [id])
+  reviewedAt  DateTime?
+  
+  mergedAt    DateTime?
+  
+  // Discussions & Disputes
+  discussions Discussion[]
+  disputes    Dispute[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([sourceBranchId])
+  @@index([creatorId])
+  @@index([reviewerId])
+  @@index([status])
+}
+
+
+// ==================== SUBMISSION & ONBOARDING ====================
+
+model SubmissionPhoto {
+  id          String    @id @default(uuid())
+  
+  contributorId String
+  contributor   Contributor @relation(fields: [contributorId], references: [id])
+  
+  photoUrl    String
+  marga       String
+  description String?
+  
+  // Admin review
+  status      SubmissionStatus @default(PENDING) // PENDING, APPROVED, REJECTED
+  reviewedBy  String?
+  reviewer    Contributor? @relation("PhotoReviewer", fields: [reviewedBy], references: [id])
+  reviewNote  String?
+  reviewedAt  DateTime?
+  
+  // Jika approved, branch yang dibuat
+  branchId    String?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([contributorId])
+  @@index([reviewedBy])
+  @@index([status])
+}
+
+// ==================== USER MANAGEMENT ====================
+
+model Contributor {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  name        String
+  
+  marga       String?   // Marga si contributor
+  role        UserRole  @default(CONTRIBUTOR) // ADMIN, MODERATOR, CONTRIBUTOR
+  
+  // Permissions
+  canCreateBranch Boolean @default(false)
+  canCommit       Boolean @default(false)
+  canReview       Boolean @default(false)
+  
+  isVerified  Boolean   @default(false)
+  isBanned    Boolean   @default(false)
+  
+  // Relations
+  persons     Person[]
+  branches    Branch[]
+  commits     Commit[]
+  mergeRequests MergeRequest[]
+  reviewedMerges MergeRequest[] @relation("MergeReviewer")
+  
+  discussions Discussion[]
+  comments    Comment[]
+  
+  disputes    Dispute[] @relation("DisputeReporter")
+  resolvedDisputes Dispute[] @relation("DisputeResolver")
+  
+  submissions SubmissionPhoto[]
+  reviewedPhotos SubmissionPhoto[] @relation("PhotoReviewer")
+  
+  evidences   Evidence[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([email])
+  @@index([marga])
+  @@index([role])
+}
+
+// ==================== ENUMS ====================
+
+enum PersonStatus {
+  PENDING
+  APPROVED
+  DISPUTED
+  MERGED
+}
+
+enum BranchType {
+  MAIN
+  FEATURE
+  HOTFIX
+}
+
+enum BranchStatus {
+  ACTIVE
+  MERGED
+  ARCHIVED
+  REJECTED
+}
+
+enum ChangeType {
+  ADD
+  UPDATE
+  DELETE
+}
+
+enum MergeStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  MERGED
+}
+
+enum DiscussionType {
+  COMMENT
+  DISPUTE
+  ZOOM_MEETING
+}
+
+enum DiscussionStatus {
+  OPEN
+  RESOLVED
+  CLOSED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum EvidenceType {
+  PHOTO
+  DOCUMENT
+  TESTIMONY
+  OTHER
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UserRole {
+  ADMIN
+  MODERATOR
+  CONTRIBUTOR
+}
+
+model Person {
+  id          String    @id @default(uuid())
+  name        String
+  generation  Int
+  wife        String?
+  description String?
+  birthOrder  Int       @default(0)
+  father      Person?   @relation("Children", fields: [fatherId], references: [id], onDelete: SetNull)
+  fatherId    String?
+  contributor Contributor? @relation(fields: [contributorId], references: [id], onDelete: SetNull)
+  contributorId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  children    Person[]  @relation("Children")
+  @@index([contributorId])
+}
+
+model ProposedPerson { //temporary
+  id          String    @id @default(uuid())
+  name        String
+  generation  Int
+  wife        String?
+  description String?
+  birthOrder  Int       @default(0)
+  father      ProposedPerson?   @relation("Children", fields: [fatherId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  fatherId    String?
+  originalPersonId String?  // Reference to original Person if editing existing
+  dataSubmissionId  String?
+  dataSubmission    DataSubmission? @relation(fields: [dataSubmissionId], references: [id], onDelete: Restrict)
+
+  @@index([dataSubmissionId])
+  @@index([originalPersonId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  children    ProposedPerson[]  @relation("Children")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  reviewedSubmissions DataSubmission[]
+}
+
+model Contributor {
+  id            String           @id @default(uuid())
+  email         String           @unique
+  fullName      String
+  password      String
+  birthday      DateTime?
+  whatsapp      String?
+  address       String?
+  city          String?
+  country       String?
+  facebook      String?
+  instagram     String?
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  submissions   DataSubmission[]
+  persons       Person[]
+}
+
+model DataSubmission {
+  id                String      @id @default(uuid())
+  changesDetail     String
+  status            String      @default("waiting") // waiting, in_review, accepted, accepted_with_discuss, rejected, cancelled
+  taromboProve      String // Image link
+  ancestorName      String
+  fatherName        String?
+  selectedAncestorId String?   // ID of the ancestor chosen for this proposal
+  proposalType      String     @default("lineage_edit") // lineage_edit, new_branch, correction
+  adminNotes        String?    // For admin comments/discussions
+  reviewedAt        DateTime?
+  reviewedBy        Admin?     @relation(fields: [adminId], references: [id])
+  adminId           String?
+
+  submittedAt  DateTime    @default(now())
+  
+  submittedBy  Contributor @relation(fields: [contributorId], references: [id])
+  contributorId String
+
+  proposedPersons ProposedPerson[]
+  
+  @@index([status])
+  @@index([contributorId])
+  @@index([selectedAncestorId])
+  @@index([contributorId, status])
+}
