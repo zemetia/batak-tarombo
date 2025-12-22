@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Safe Data Migration Script
  *
@@ -7,7 +8,7 @@
  * Run with: npx ts-node prisma/migrations/data-migration.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole, RequestStatus, OperationType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();

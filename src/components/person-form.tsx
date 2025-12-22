@@ -27,6 +27,7 @@ import { useTranslations } from 'next-intl';
 // However, for the props interface, we can just use a manual type or keep the interface compatible.
 export type PersonFormData = {
   name: string;
+  gender: 'MALE' | 'FEMALE';
   wife?: string;
   description?: string;
   fatherId?: string | null;
@@ -46,6 +47,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
   
   const formSchema = z.object({
     name: z.string().min(2, { message: t('validation.nameMin') }),
+    gender: z.enum(['MALE', 'FEMALE']),
     wife: z.string().optional(),
     description: z.string().optional(),
     fatherId: z.string().nullable().optional(),
@@ -61,6 +63,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      gender: 'MALE',
       wife: '',
       description: '',
       birthOrder: 0,
@@ -76,6 +79,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
     if (personData) {
       reset({
         name: personData.name || '',
+        gender: personData.gender || 'MALE',
         wife: personData.wife || '',
         description: personData.description || '',
         fatherId: personData.fatherId,
@@ -84,6 +88,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
     } else {
         reset({
             name: '',
+            gender: 'MALE',
             wife: '',
             description: '',
             fatherId: null,
@@ -92,11 +97,11 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
     }
   }, [personData, reset, isOpen]);
 
-  const formTitle = personData?.id ? t('titles.edit', {name: personData.name}) : t('titles.add');
+  const formTitle = personData?.id ? t('titles.edit', {name: personData.name || ''}) : t('titles.add');
   const formDescription = personData?.id
     ? t('titles.editDesc')
     : personData?.fatherId
-    ? t('titles.addChildDesc', {generation: personData.generation})
+    ? t('titles.addChildDesc', {generation: personData.generation || 0})
     : t('titles.addRootDesc');
     
   const fatherOptions = [
@@ -121,9 +126,27 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
               <Controller
                 name="name"
                 control={control}
-                render={({ field }) => <Input id="name" {...field} />}
+                render={({ field }) => <Input id="name" {...field} value={field.value ?? ''} />}
               />
               {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="gender">{t('labels.gender')}</Label>
+               <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    id="gender"
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    {...field}
+                  >
+                    <option value="MALE">{t('options.male')}</option>
+                    <option value="FEMALE">{t('options.female')}</option>
+                  </select>
+                )}
+              />
             </div>
             
             <div className="grid gap-2">
@@ -149,7 +172,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
               <Controller
                 name="wife"
                 control={control}
-                render={({ field }) => <Input id="wife" {...field} />}
+                render={({ field }) => <Input id="wife" {...field} value={field.value ?? ''} />}
               />
             </div>
 
@@ -158,7 +181,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
               <Controller
                 name="birthOrder"
                 control={control}
-                render={({ field }) => <Input id="birthOrder" type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} />}
+                render={({ field }) => <Input id="birthOrder" type="number" {...field} value={field.value ?? 0} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} />}
               />
             </div>
 
@@ -167,7 +190,7 @@ export function PersonForm({ isOpen, onOpenChange, onSubmit, personData, potenti
                <Controller
                 name="description"
                 control={control}
-                render={({ field }) => <Textarea id="description" {...field} />}
+                render={({ field }) => <Textarea id="description" {...field} value={field.value ?? ''} />}
               />
             </div>
           </div>

@@ -7,9 +7,11 @@ export interface Ancestor {
   wife?: string | null;
   description?: string | null;
   birthOrder?: number;
-  sex?: 'MALE' | 'FEMALE'; // Default MALE
+  gender?: 'MALE' | 'FEMALE'; // Default MALE
+  isAlive?: boolean;
   alternativeNames?: string[];
   children?: Ancestor[];
+  fatherId?: string | null;
 }
 
 // Helper to create IDs consistently if needed, but for now we generate them.

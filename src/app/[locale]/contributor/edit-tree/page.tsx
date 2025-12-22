@@ -20,7 +20,7 @@ import {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
-import { getLineageData, updatePerson, addPerson, deletePerson, getAllAncestors as fetchAllAncestors, reorderSiblings, getActiveProposal, updateProposedPerson, addProposedPerson, deleteProposedPerson, reorderProposedSiblings } from '@/lib/actions';
+import { getLineageData, updatePerson, addPerson, deletePerson, getAllAncestors as fetchAllAncestors, reorderSiblings, getActiveProposal, addNewPersonRequest, addEditPersonRequest, addDeletePersonRequest } from '@/lib/actions';
 import { type Ancestor } from '@/lib/data';
 import { useSearchParams } from 'next/navigation';
 import { EditableNode } from '@/components/editable-node';
@@ -89,8 +89,7 @@ const fitViewOptions = { padding: 0.2 };
 const getDescendantIds = (personId: string, allPeople: Ancestor[]): Set<string> => {
     const descendants = new Set<string>();
     const queue: string[] = [personId];
-    const personMap = new Map(allPeople.map(p => [p.id, p]));
-
+    
     const findChildren = (parentId: string) => {
         return allPeople.filter(p => p.fatherId === parentId).map(p => p.id);
     };
@@ -107,7 +106,7 @@ const getDescendantIds = (personId: string, allPeople: Ancestor[]): Set<string> 
 };
 
 
-export default function EditTreePage() {
+const EditTreeContent = () => {
   const searchParams = useSearchParams();
   const proposalId = searchParams.get('proposalId');
   
@@ -138,25 +137,84 @@ export default function EditTreePage() {
   
   const refetchData = useCallback(async () => {
     if (proposalId) {
-      // Load proposal data instead of global data
       try {
         const userData = localStorage.getItem('user');
         if (userData) {
           const user = JSON.parse(userData);
           const proposal = await getActiveProposal(user.id);
+          
           if (proposal && proposal.id === proposalId) {
             setActiveProposal(proposal);
             setIsProposalMode(true);
-            // Convert proposed persons to ancestor format
-            const proposedAncestors = proposal.proposedPersons.map((p: any) => ({
-              id: p.id,
-              name: p.name,
-              generation: p.generation,
-              wife: p.wife,
-              description: p.description,
-              birthOrder: p.birthOrder,
-              fatherId: p.fatherId
-            }));
+            
+            // 1. Fetch current live tree and map to Ancestor
+            const currentAncestorsRaw = await fetchAllAncestors();
+            const mapPrismaToAncestor = (p: any): Ancestor => ({
+                id: p.id,
+                name: p.name,
+                gender: p.gender,
+                generation: p.generation || 0,
+                fatherId: p.parent?.husbandId || null, // Map Marriage.husbandId to fatherId
+                birthOrder: p.detail?.birthOrder || 0,
+                isAlive: p.detail?.isAlive ?? true,
+                description: p.detail?.description,
+                children: []
+            });
+            
+            let proposedAncestors = currentAncestorsRaw.map(mapPrismaToAncestor);
+            const request = proposal as any;
+
+            // 2. Apply operations locally
+            if (request.personRequests) {
+              request.personRequests.forEach((pr: any) => {
+                const { operation, person, newData, personId } = pr;
+                
+                if (operation === 'NEW') {
+                   // Add the DRAFT person
+                   if (person) {
+                       const newAncestor: Ancestor = {
+                           id: person.id,
+                           name: person.name,
+                           gender: person.gender || newData.gender || 'MALE',
+                           generation: person.generation || newData.generation,
+                           fatherId: person.parentId ? undefined : newData.fatherId, // Prefer newData.fatherId for simple linking if DRAFT parentId is complex
+                           // But wait, DRAFT Person parentId is set in DB found via person.parentId (marriage id?) or person.parentId (person id? in my fix)
+                           // My backend fix set parentId to Marriage ID if found, OR kept it null?
+                           // Actually my backend fix tried to find Marriage.
+                           
+                           // If newData.fatherId refers to a PERSON, we want that.
+                           // For visualization, newData.fatherId is easiest.
+                           
+                           birthOrder: person.detail?.birthOrder || newData.birthOrder || 0,
+                           isAlive: person.detail?.isAlive ?? true,
+                           description: person.detail?.description,
+                           children: []
+                       };
+                       // If backend fix worked, person.parentId might point to Marriage.
+                       // But if we want to show the tree, we need the Father ID (Person).
+                       // We can use newData.fatherId which preserves the intent.
+                       newAncestor.fatherId = newData.fatherId || newAncestor.fatherId;
+
+                       if (!proposedAncestors.find(a => a.id === newAncestor.id)) {
+                           proposedAncestors.push(newAncestor);
+                           setNewNodes(prev => new Set(prev).add(newAncestor.id));
+                       }
+                   }
+                } else if (operation === 'EDIT') {
+                    const index = proposedAncestors.findIndex(a => a.id === personId);
+                    if (index >= 0) {
+                        proposedAncestors[index] = {
+                            ...proposedAncestors[index],
+                            ...newData
+                        };
+                        setEditedNodes(prev => new Set(prev).add(personId));
+                    }
+                } else if (operation === 'DELETE') {
+                    proposedAncestors = proposedAncestors.filter(a => a.id !== personId);
+                }
+              });
+            }
+            
             setAllAncestors(proposedAncestors);
           }
         }
@@ -170,10 +228,28 @@ export default function EditTreePage() {
       }
     } else {
       // Load global data
-      const data = await getLineageData();
-      const all = await fetchAllAncestors();
-      setLineageData(data);
-      setAllAncestors(all as Ancestor[]);
+      const data = await getLineageData(); // Logic for root calc
+      const allRaw = await fetchAllAncestors();
+      
+      const mapPrismaToAncestor = (p: any): Ancestor => ({
+          id: p.id,
+          name: p.name,
+          gender: p.gender, // Enum matches string union
+          generation: p.generation || 1,
+          fatherId: p.parent?.husbandId || null,
+          birthOrder: p.detail?.birthOrder || 0,
+          isAlive: p.detail?.isAlive ?? true,
+          description: p.detail?.description,
+          children: []
+      });
+
+      const all = allRaw.map(mapPrismaToAncestor);
+      
+      setLineageData(data); // This might need update if shape differs, but likely Ancestor?
+      // getLineageData returns Ancestor (recursive). fetchAllAncestors returns flat.
+      // We rely on flat list for graph building.
+      
+      setAllAncestors(all);
       setIsProposalMode(false);
     }
   }, [proposalId, toast]);
@@ -221,19 +297,58 @@ export default function EditTreePage() {
   const handleReorder = useCallback(async (personId: string, direction: 'up' | 'down') => {
       setIsLoading(true);
       try {
-          if (isProposalMode) {
-            await reorderProposedSiblings(personId, direction);
+          if (isProposalMode && activeProposal) {
+            // Find current person and parent
+            const person = allAncestors.find(a => a.id === personId);
+            if (!person || !person.fatherId) throw new Error("Person or parent not found");
+
+            // Find siblings
+            const siblings = allAncestors
+                .filter(a => a.fatherId === person.fatherId)
+                .sort((a, b) => (a.birthOrder || 0) - (b.birthOrder || 0));
+            
+            const index = siblings.findIndex(a => a.id === personId);
+            if (index === -1) throw new Error("Person not found in siblings");
+
+            let swapTarget: Ancestor | null = null;
+            if (direction === 'up' && index > 0) {
+                swapTarget = siblings[index - 1];
+            } else if (direction === 'down' && index < siblings.length - 1) {
+                swapTarget = siblings[index + 1];
+            }
+
+            if (swapTarget) {
+                // Submit EDIT requests for both to swap birthOrder
+                await addEditPersonRequest(activeProposal.id, person.id, {
+                    birthOrder: swapTarget.birthOrder || 0
+                } as any);
+
+                await addEditPersonRequest(activeProposal.id, swapTarget.id, {
+                    birthOrder: person.birthOrder || 0
+                } as any);
+
+                // Optimistic Update
+                setEditedNodes(prev => new Set(prev).add(person.id).add(swapTarget!.id));
+                toast({
+                  title: "Success",
+                  description: "Reordered successfully in proposal."
+                });
+            }
+
           } else {
             await reorderSiblings(personId, direction);
+            toast({
+                title: "Success",
+                description: "Reordered successfully."
+            });
           }
+          
           const person = allAncestors.find(a => a.id === personId);
-          addToHistory({ type: 'reorder', personData: person });
-          toast({
-              title: "Success",
-              description: "Reordered successfully."
-          });
+          if (person) addToHistory({ type: 'reorder', personData: person });
+          
           refetchData();
       } catch (error) {
+          console.error(error);
           toast({
               variant: "destructive",
               title: "Error",
@@ -242,7 +357,7 @@ export default function EditTreePage() {
       } finally {
         setIsLoading(false);
       }
-  }, [refetchData, toast, allAncestors, addToHistory, isProposalMode]);
+  }, [allAncestors, isProposalMode, activeProposal, addToHistory, refetchData, toast]);
 
 
   const createNodesAndEdges = useCallback(() => {
@@ -351,11 +466,14 @@ export default function EditTreePage() {
   const handleDelete = async (person: Ancestor) => {
       setIsLoading(true);
       try {
-        if (isProposalMode) {
-          await deleteProposedPerson(person.id);
+        if (isProposalMode && activeProposal) {
+          // Use new request action
+          await addDeletePersonRequest(activeProposal.id, person.id);
         } else {
+          // Direct delete (admin/owner?)
           await deletePerson(person.id);
         }
+        
         addToHistory({ type: 'delete', personData: person });
         toast({
             title: "Success",
@@ -376,22 +494,26 @@ export default function EditTreePage() {
   const handleFormSubmit = async (data: PersonFormData) => {
     setIsLoading(true);
     try {
+      // Map form data to PersonData schema
       const payload = {
           name: data.name,
-          generation: editingPerson?.generation || 0, // Placeholder, backend recalculates
+          generation: editingPerson?.generation || 0, // Placeholder
+          gender: data.gender,
           wife: data.wife,
           description: data.description,
-          fatherId: data.fatherId || null,
+          fatherId: data.fatherId === 'root' ? null : (data.fatherId || null),
           birthOrder: data.birthOrder,
       };
 
       if (editingPerson?.id) { // Editing existing person
-        if (isProposalMode) {
-          await updateProposedPerson(editingPerson.id, payload);
-          // Note for Proposal Mode: The proposal system stores 'newData' JSON. 
-          // If we want the PROPOSAL to show the correct generation immediately in UI, we might need a fetch or local calc.
-          // However, the 'applyRequest' will enforce correctness. 
-          // For UI consistency in "Pre-approval", we might still want to guess it, but let's stick to the plan of trusting backend or refresh.
+        if (isProposalMode && activeProposal) {
+          // EDIT REQUEST
+          // Calculate what changed? addEditPersonRequestWithDiff does it for us
+          // But wait, the action is called addEditPersonRequest (manual) or addEditPersonRequestWithDiff?
+          // request.service has addEditPersonRequestWithDiff (exported as addEditPersonRequest in actions.ts?)
+          // Let's check actions.ts. exports addEditPersonRequest -> RequestService.addEditPersonRequestWithDiff
+          
+          await addEditPersonRequest(activeProposal.id, editingPerson.id, payload);
           
         } else {
           await updatePerson(editingPerson.id, payload);
@@ -405,16 +527,48 @@ export default function EditTreePage() {
       } else { // Adding new person
         let newPerson;
         if (isProposalMode && activeProposal) {
-          newPerson = await addProposedPerson({
-            ...payload,
-            dataSubmissionId: activeProposal.id
-          });
+          // NEW REQUEST
+          // Payload needs full PersonData
+          const newPayload = {
+              ...payload,
+              gender: payload.gender || 'MALE', 
+              isAlive: true, // Default
+              // Ensure numeric fields
+              birthOrder: payload.birthOrder || 0,
+          };
+          
+          const request = await addNewPersonRequest(activeProposal.id, newPayload as any); 
+          // Result is PersonRequest, we need the Person object for UI?
+          // RefetchData will handle it.
+          // But for "addToHistory" we might want the data.
+          newPerson = { 
+              ...newPayload, 
+              id: request.personId // Link to draft person
+          };
+
         } else {
           newPerson = await addPerson(payload);
         }
         
-        setNewNodes(prev => new Set(prev).add(newPerson.id));
-        addToHistory({ type: 'add', personData: newPerson });
+        if (newPerson && newPerson.id) {
+             const np = newPerson as any;
+             const safeAncestor: Ancestor = {
+                id: np.id,
+                name: np.name,
+                gender: np.gender as 'MALE' | 'FEMALE',
+                generation: np.generation || 1,
+                // Handle various potential structures
+                fatherId: np.fatherId || (np.parent?.husbandId) || np.parentId || null,
+                birthOrder: np.birthOrder || np.detail?.birthOrder || 0,
+                isAlive: np.isAlive ?? np.detail?.isAlive ?? true,
+                description: np.description || np.detail?.description,
+                wife: np.wife,
+                children: [] 
+            };
+            
+            setNewNodes(prev => new Set(prev).add(safeAncestor.id));
+            addToHistory({ type: 'add', personData: safeAncestor });
+        }
         toast({
           title: 'Success',
           description: 'Person added successfully.',
@@ -709,5 +863,13 @@ export default function EditTreePage() {
         />
       </div>
     </TooltipProvider>
+  );
+};
+
+export default function EditTreePage() {
+  return (
+    <React.Suspense fallback={<div className="flex items-center justify-center p-8">Loading editor...</div>}>
+      <EditTreeContent />
+    </React.Suspense>
   );
 }

@@ -92,6 +92,7 @@ export async function getLineageTree(options?: LineageOptions): Promise<Ancestor
         generation: person.generation || 0,
         wife: undefined, 
         fatherId: fatherId,
+        gender: person.gender as 'MALE' | 'FEMALE',
         huta: person.detail?.huta || undefined,
         description: person.detail?.description || undefined,
         birthOrder: person.detail?.birthOrder || 0,
@@ -213,7 +214,7 @@ export async function addPerson(
     const newPerson = await prisma.person.create({
         data: {
             name: person.name,
-            gender: 'MALE', 
+            gender: person.gender || 'MALE', 
             generation: newGeneration, // Server-calculated
             status: 'ACTIVE',
             parentId: parentMarriageId,
@@ -242,6 +243,7 @@ export async function updatePerson(
     
     const dataToUpdate: any = {};
     if (person.name) dataToUpdate.name = person.name;
+    if (person.gender) dataToUpdate.gender = person.gender;
     if (person.generation !== undefined) dataToUpdate.generation = person.generation;
     
     // detail updates

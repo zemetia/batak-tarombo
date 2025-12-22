@@ -72,7 +72,7 @@ export default function SignupPage() {
       
       localStorage.setItem('user', JSON.stringify({ 
         id: newContributor.id, 
-        name: newContributor.name, 
+        name: newContributor.profile?.fullName || newContributor.email, 
         email: newContributor.email,
         role: 'contributor'
       }));

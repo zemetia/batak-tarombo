@@ -36,13 +36,16 @@ interface Submission {
   changesDetail: string;
   adminNotes: string | null;
   submittedAt: Date | string;
-  reviewedBy: { name: string } | null;
+  reviewedBy: { profile: { fullName: string } | null } | null;
   selectedAncestorId?: string | null;
   proposalType?: string;
+  _count?: {
+    personRequests: number;
+  };
 }
 
 interface ActiveProposal extends Submission {
-  proposedPersons: any[];
+  personRequests: any[];
 }
 
 export default function ContributorPage() {
@@ -64,12 +67,14 @@ export default function ContributorPage() {
   });
 
   const statusConfig = {
-    waiting: { icon: Clock, color: 'bg-blue-500/10 text-blue-700 border-blue-500/20', label: t('status.waiting') },
-    in_review: { icon: MessageSquare, color: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20', label: t('status.in_review') },
-    accepted: { icon: CheckCircle, color: 'bg-green-500/10 text-green-700 border-green-500/20', label: t('status.accepted') },
-    accepted_with_discuss: { icon: CheckCircle, color: 'bg-green-500/10 text-green-700 border-green-500/20', label: t('status.accepted_with_discuss') },
-    rejected: { icon: XCircle, color: 'bg-red-500/10 text-red-700 border-red-500/20', label: t('status.rejected') },
-    cancelled: { icon: XCircle, color: 'bg-gray-500/10 text-gray-700 border-gray-500/20', label: t('status.cancelled') },
+    WAITING: { icon: Clock, color: 'bg-blue-500/10 text-blue-700 border-blue-500/20', label: t('status.waiting') },
+    PENDING: { icon: Clock, color: 'bg-blue-500/10 text-blue-700 border-blue-500/20', label: t('status.waiting') },
+    IN_REVIEW: { icon: MessageSquare, color: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20', label: t('status.in_review') },
+    APPROVED: { icon: CheckCircle, color: 'bg-green-500/10 text-green-700 border-green-500/20', label: t('status.accepted') },
+    ACCEPTED: { icon: CheckCircle, color: 'bg-green-500/10 text-green-700 border-green-500/20', label: t('status.accepted') },
+    ACCEPTED_WITH_DISCUSS: { icon: CheckCircle, color: 'bg-green-500/10 text-green-700 border-green-500/20', label: t('status.accepted_with_discuss') },
+    REJECTED: { icon: XCircle, color: 'bg-red-500/10 text-red-700 border-red-500/20', label: t('status.rejected') },
+    CANCELLED: { icon: XCircle, color: 'bg-gray-500/10 text-gray-700 border-gray-500/20', label: t('status.cancelled') },
   };
 
   useEffect(() => {
@@ -87,8 +92,31 @@ export default function ContributorPage() {
         getSubmissionsByContributor(contributorId),
         getActiveProposal(contributorId)
       ]);
-      setSubmissions(submissionsData);
-      setActiveProposal(activeProposalData);
+      
+      const mapRequestToSubmission = (req: any): Submission => ({
+        id: req.id,
+        ancestorName: req.title.replace(/^Changes to (.*?)'s lineage$/, '$1').replace(/^Changes to /, ''), 
+        fatherName: null,
+        status: req.status,
+        changesDetail: req.description || '',
+        adminNotes: req.adminNotes,
+        submittedAt: req.submittedAt,
+        reviewedBy: req.reviewedBy,
+        selectedAncestorId: null,
+        _count: req._count
+      });
+
+      setSubmissions((submissionsData as any[]).map(mapRequestToSubmission));
+      
+      if (activeProposalData) {
+        const activeReq = activeProposalData as any;
+        setActiveProposal({
+           ...mapRequestToSubmission(activeReq),
+           personRequests: activeReq.personRequests || []
+        });
+      } else {
+        setActiveProposal(null);
+      }
     } catch (error) {
       console.error('Error loading user data:', error);
     }

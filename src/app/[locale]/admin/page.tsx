@@ -45,10 +45,12 @@ interface Admin {
 interface Contributor {
   id: string;
   email: string;
-  profile?: { fullName: string; whatsapp?: string | null; city?: string | null; country?: string | null } | null;
-  whatsapp: string | null;
-  city: string | null;
-  country: string | null;
+  profile?: { 
+    fullName: string; 
+    whatsapp?: string | null; 
+    city?: string | null; 
+    country?: string | null 
+  } | null;
   createdAt: Date | string;
   _count: {
     submissions: number;
@@ -131,9 +133,24 @@ export default function AdminPage() {
         getContributors(),
         getDataSubmissions()
       ]);
-      setAdminUsers(adminsData);
-      setContributors(contributorsData);
-      setSubmissions(submissionsData);
+        const validAdmins = adminsData as any[];
+        const validContributors = contributorsData as any[];
+        const formattedSubmissions = (submissionsData as any[]).map(req => ({
+            id: req.id,
+            ancestorName: req.title, // Map title to ancestorName
+            fatherName: null, // Not available directly on Request
+            status: req.status.toLowerCase(), // Normalize status to lowercase
+            changesDetail: req.description || '',
+            taromboProve: req.taromboProveUrl || '',
+            adminNotes: req.adminNotes,
+            submittedAt: req.submittedAt,
+            reviewedAt: req.reviewedAt,
+            submittedBy: req.submittedBy,
+            reviewedBy: req.reviewedBy
+        }));
+        setAdminUsers(validAdmins);
+        setContributors(validContributors);
+        setSubmissions(formattedSubmissions);
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -380,10 +397,10 @@ export default function AdminPage() {
                             <TableCell className="font-medium">
                             <div className="flex flex-col">
                                 <span className="text-base text-[#7B1E1E]">{contributor.profile?.fullName || 'Unknown'}</span>
-                                {contributor.whatsapp && (
+                                {contributor.profile?.whatsapp && (
                                 <span className="text-xs text-muted-foreground flex items-center gap-1">
                                     <Phone className="h-3 w-3" />
-                                    {contributor.whatsapp}
+                                    {contributor.profile.whatsapp}
                                 </span>
                                 )}
                             </div>
@@ -392,9 +409,9 @@ export default function AdminPage() {
                             {contributor.email}
                             </TableCell>
                             <TableCell className="hidden lg:table-cell text-muted-foreground">
-                            {contributor.city && contributor.country 
-                                ? `${contributor.city}, ${contributor.country}` 
-                                : contributor.city || contributor.country || '-'}
+                            {contributor.profile?.city && contributor.profile?.country 
+                                ? `${contributor.profile.city}, ${contributor.profile.country}` 
+                                : contributor.profile?.city || contributor.profile?.country || '-'}
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                             <Badge variant="secondary" className="bg-[#7B1E1E]/10 text-[#7B1E1E]">

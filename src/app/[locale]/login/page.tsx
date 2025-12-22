@@ -45,7 +45,7 @@ export default function LoginPage() {
         });
         localStorage.setItem('user', JSON.stringify({ 
           id: contributor.id, 
-          name: contributor.name, 
+          name: contributor.profile?.fullName || contributor.email, 
           email: contributor.email,
           role: 'contributor'
         }));
@@ -76,11 +76,11 @@ export default function LoginPage() {
       if (admin) {
         toast({
           title: t('toast.successTitle'),
-          description: t('toast.successDesc', {name: admin.name}),
+          description: t('toast.successDesc', {name: admin.profile?.fullName || 'Admin'}),
         });
         localStorage.setItem('user', JSON.stringify({ 
           id: admin.id, 
-          name: admin.name, 
+          name: admin.profile?.fullName || admin.email, 
           email: admin.email,
           role: 'admin'
         }));

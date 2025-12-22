@@ -288,7 +288,7 @@ export async function loginWithFirebase(
 export async function linkFirebaseAccount(
   userId: string,
   firebaseData: FirebaseUserData
-): Promise<User> {
+): Promise<User & { profile: UserProfile | null }> {
   const updated = await prisma.user.update({
     where: { id: userId },
     data: {

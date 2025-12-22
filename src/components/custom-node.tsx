@@ -88,7 +88,7 @@ export const CustomNode = React.memo(({ data, id }: NodeProps<CustomNodeData>) =
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{t('marriedTo', {name: data.rawAncestor.wife})}</p>
+                    <p>{t('marriedTo', {name: data.rawAncestor.wife || ''})}</p>
                   </TooltipContent>
                 </Tooltip>
               )}

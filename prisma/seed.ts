@@ -10,7 +10,7 @@ async function seedPerson(ancestor: Ancestor, parentMarriageId?: string) {
     data: {
       id: ancestor.id,
       name: ancestor.name,
-      gender: ancestor.sex === 'FEMALE' ? Gender.FEMALE : Gender.MALE,
+      gender: ancestor.gender === 'FEMALE' ? Gender.FEMALE : Gender.MALE,
       status: PersonStatus.ACTIVE,
       parentId: parentMarriageId, // Link to parent marriage
       detail: {

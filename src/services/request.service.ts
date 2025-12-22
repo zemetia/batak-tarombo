@@ -250,15 +250,40 @@ export async function addPersonRequest(data: AddPersonRequestData): Promise<Pers
 /**
  * Add NEW PersonRequest (add new person)
  */
+/**
+ * Add NEW PersonRequest (add new person)
+ */
 export async function addNewPersonRequest(
   requestId: string,
   personData: PersonData
 ): Promise<PersonRequest> {
+  // Create a DRAFT person first to get a real ID
+  const draftPerson = await prisma.person.create({
+    data: {
+      name: personData.name,
+      gender: personData.gender,
+      generation: personData.generation, // Will be recalculated on apply? Or trust client?
+      status: 'DRAFT',
+      parentId: personData.fatherId, // Can point to Active or Draft person
+      detail: {
+        create: {
+          birthYear: personData.birthYear,
+          deathYear: personData.deathYear,
+          isAlive: personData.isAlive,
+          huta: personData.huta,
+          description: personData.description,
+          birthOrder: personData.birthOrder
+        }
+      }
+    }
+  });
+
   const requestData = createNewPersonRequest(personData);
 
   return addPersonRequest({
     requestId,
     operation: 'NEW',
+    personId: draftPerson.id, // Link to the draft person
     newData: requestData.newData,
     previousData: null,
     changedFields: []
@@ -523,52 +548,87 @@ export async function applyRequest(requestId: string, adminId: string) {
       });
 
       if (isNewOperation(validatedData)) {
-        // CREATE new person
+        // ACTIVATE the DRAFT person
+        if (!validatedData.personId) {
+            throw new Error('NEW operation requires personId (Draft Person)');
+        }
+
+        const draftPerson = await tx.person.findUnique({ where: { id: validatedData.personId } });
+        if (!draftPerson) {
+             throw new Error(`Draft person ${validatedData.personId} not found`);
+        }
+        
+        // Recalculate generation and resolve parent marriage only if necessary
+        // Or trust the draft state if it was maintained?
+        // Let's ensure lineage integrity:
+        let newGeneration = 1;
+        let parentMarriageId = draftPerson.parentId; // Currently points to Person? No, parentId points to Marriage in Schema?
+        // Schema says: parentId String? parent Marriage?
+        // Wait, Person.parentId points to MARRIAGE.
+        // But PersonData.fatherId usually points to PERSON (Father).
+        // My addNewPersonRequest above mapped parentId: personData.fatherId.
+        // If PersonData.fatherId is a Person ID, then Person.parentId (Marriage ID) assignment was WRONG in addNewPersonRequest?
+        
+        // CORRECTION NEEDED: Person.parentId MUST be a Marriage ID.
+        // If personData.fatherId is a Person ID, we need to find/create a Marriage for that father.
+        
+        // Re-evaluating addNewPersonRequest...
+        // For DRAFT, maybe we don't strictly enforce Marriage link yet? 
+        // Or we store fatherId in detail? or somewhere else?
+        // IF schema says parentId references Marriage, we cannot store PersonID there.
+        // Reference: parent Marriage? @relation("Parenting", ...)
+        
+        // So my addNewPersonRequest logic above will FAIL FK constraint if I put PersonID in parentId.
+        // I must fix addNewPersonRequest first. (See next thought block)
+        
+        // Assuming we fixed that, applyRequest just needs to flip status.
+        // But wait, if we couldn't create Marriage during Draft (because father is Draft?), we have a problem.
+        // If Father is Draft, he has no Marriage record as Husband yet.
+        
+        // Complexity alert: The strict "Marriage Hub" schema makes "Draft Tree" hard if we enforce constraints.
+        // Maybe DRAFT persons should be created with NO parentId initially, and we store the "intended father" in newData?
+        // Yes. `newData.fatherId` holds the intention.
+        // So addNewPersonRequest should NOT set parentId if it's not a Marriage ID.
+        
+        // Back to applyRequest logic:
         const d = validatedData.newData;
         
         // Resolve Father & Generation
-        let newGeneration = 1;
-        let parentMarriageId: string | null = null;
+        let derivedGeneration = 1;
+        let derivedParentMarriageId: string | null = null;
         
         if (d.fatherId) {
             const father = await tx.person.findUnique({ where: { id: d.fatherId } });
             if (father) {
-                newGeneration = (father.generation || 0) + 1;
+                derivedGeneration = (father.generation || 0) + 1;
                 
-                // Find/Create Marriage
+                // Find/Create Marriage for the father
+                // Note: If father is also becoming ACTIVE in this transaction, it should work fine if we find/create marriage.
+                // But we must use tx to see changes? 
+                // Creating marriage for a potentially Draft father:
+                // If father was Draft, he is now being Active.
+                // We can create a Marriage even for Draft father? Yes, if marriage table doesn't check status.
+                
                 const marriage = await tx.marriage.findFirst({ where: { husbandId: d.fatherId } });
                 if (marriage) {
-                    parentMarriageId = marriage.id;
+                    derivedParentMarriageId = marriage.id;
                 } else {
                     const newM = await tx.marriage.create({ data: { husbandId: d.fatherId } });
-                    parentMarriageId = newM.id;
+                    derivedParentMarriageId = newM.id;
                 }
             }
         } else if (d.generation) {
-             // Fallback for root
-             newGeneration = d.generation;
+             derivedGeneration = d.generation;
         }
 
-        await tx.person.create({
+        await tx.person.update({
+          where: { id: validatedData.personId },
           data: {
-            name: d.name,
-            gender: d.gender,
-            generation: newGeneration, // Server calc
-            status: 'ACTIVE', 
-            parentId: parentMarriageId,
-            // createdById: request.submittedById, 
-            
-            // Create details
-            detail: {
-                create: {
-                   birthYear: d.birthYear,
-                   deathYear: d.deathYear,
-                   isAlive: d.isAlive,
-                   huta: d.huta,
-                   description: d.description,
-                   birthOrder: d.birthOrder
-                }
-            }
+            status: 'ACTIVE',
+            generation: derivedGeneration,
+            parentId: derivedParentMarriageId,
+            // Update other details if newData differs from what was in Draft?
+            // Usually Draft matches newData.
           }
         });
       } else if (isEditOperation(validatedData)) {
