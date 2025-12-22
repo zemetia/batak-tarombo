@@ -1,8 +1,6 @@
-// @ts-nocheck
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import type { Ancestor } from '@/lib/data';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 async function isDescendant(personId: string, potentialDescendantId: string): Promise<boolean> {
     let currentNodeId: string | null = potentialDescendantId;
@@ -12,7 +10,7 @@ async function isDescendant(personId: string, potentialDescendantId: string): Pr
             return true;
         }
         // Navigate up via parent (Marriage) -> husband (Father)
-        const person = await prisma.person.findUnique({
+        const person: { parent: { husbandId: string | null } | null } | null = await prisma.person.findUnique({
             where: { id: currentNodeId },
             include: { parent: true },
         });

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * User Service - Unified user management
  *
@@ -6,11 +5,10 @@
  * Supports both password-based (temporary) and Firebase authentication
  */
 
-import { PrismaClient, User, UserRole, AuthProvider, UserProfile, Gender } from '@prisma/client';
+import { User, UserRole, AuthProvider, UserProfile, Gender } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // ==================== TYPES ====================
 

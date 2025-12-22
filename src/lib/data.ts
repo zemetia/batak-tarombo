@@ -9,6 +9,9 @@ export interface Ancestor {
   birthOrder?: number;
   gender?: 'MALE' | 'FEMALE'; // Default MALE
   isAlive?: boolean;
+  huta?: string | null;
+  birthYear?: number | null;
+  deathYear?: number | null;
   alternativeNames?: string[];
   children?: Ancestor[];
   fatherId?: string | null;

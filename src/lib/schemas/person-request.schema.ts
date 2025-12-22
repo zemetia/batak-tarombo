@@ -60,10 +60,11 @@ export type PersonData = z.infer<typeof PersonDataSchema>;
 /**
  * Schema for NEW operation
  * Creates a new person with full data
+ * personId references the DRAFT person created during request submission
  */
 export const PersonRequestNewSchema = z.object({
   operation: z.literal('NEW'),
-  personId: z.null(),
+  personId: z.string().uuid('Invalid person ID'),
   newData: PersonDataSchema,
   previousData: z.null(),
   changedFields: z.array(z.string()).default([])
@@ -168,10 +169,10 @@ export function safeValidatePersonRequest(data: unknown) {
 /**
  * Create a NEW PersonRequest
  */
-export function createNewPersonRequest(data: PersonData): PersonRequestNew {
+export function createNewPersonRequest(personId: string, data: PersonData): PersonRequestNew {
   return PersonRequestNewSchema.parse({
     operation: 'NEW',
-    personId: null,
+    personId: personId,
     newData: data,
     previousData: null,
     changedFields: []

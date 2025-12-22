@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Request Service - Request and PersonRequest management
  *
@@ -6,7 +5,7 @@
  * Replaces the old DataSubmission/ProposedPerson system
  */
 
-import { PrismaClient, Request, PersonRequest, RequestStatus, Person, PersonDetail } from '@prisma/client';
+import { Request, PersonRequest, RequestStatus, Person, PersonDetail } from '@prisma/client';
 import {
   PersonRequestData,
   PersonData,
@@ -20,8 +19,7 @@ import {
   calculatePersonDiff
 } from '@/lib/schemas/person-request.schema';
 import { updateDescendantGenerations } from './person.service';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // ==================== TYPES ====================
 
@@ -278,15 +276,15 @@ export async function addNewPersonRequest(
     }
   });
 
-  const requestData = createNewPersonRequest(personData);
+  const requestData = createNewPersonRequest(draftPerson.id, personData);
 
   return addPersonRequest({
     requestId,
     operation: 'NEW',
-    personId: draftPerson.id, // Link to the draft person
+    personId: requestData.personId,
     newData: requestData.newData,
-    previousData: null,
-    changedFields: []
+    previousData: requestData.previousData,
+    changedFields: requestData.changedFields
   });
 }
 
@@ -689,7 +687,16 @@ export async function applyRequest(requestId: string, adminId: string) {
                 data: personUpdate
             });
         }
-        
+
+        // Build detailUpdate object for PersonDetail fields
+        const detailUpdate: any = {};
+        if (d.birthYear !== undefined) detailUpdate.birthYear = d.birthYear;
+        if (d.deathYear !== undefined) detailUpdate.deathYear = d.deathYear;
+        if (d.isAlive !== undefined) detailUpdate.isAlive = d.isAlive;
+        if (d.huta !== undefined) detailUpdate.huta = d.huta;
+        if (d.description !== undefined) detailUpdate.description = d.description;
+        if (d.birthOrder !== undefined) detailUpdate.birthOrder = d.birthOrder;
+
         if (Object.keys(detailUpdate).length > 0) {
             await tx.personDetail.upsert({
                 where: { personId: validatedData.personId },
